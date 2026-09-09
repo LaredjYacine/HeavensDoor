@@ -7,7 +7,9 @@ authors = [
     { name = "LaredjYacine", email = "laredjyacine955@gmail.com" }
 ]
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "fastapi>=0.141.1",
+]
 
 [project.scripts]
 heavensdoor = "heavensdoor:main"
