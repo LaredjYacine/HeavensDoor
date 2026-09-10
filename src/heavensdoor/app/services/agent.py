@@ -1,8 +1,10 @@
 
-from langchain_ollama import OllamaLLM
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 
-
-model = OllamaLLM(
-    model="qwen2.5:14b",
-    base_url='http://localhost:11434',
+model = HuggingFaceEndpoint(
+    endpoint_url="",
+    huggingfacehub_api_token="",
+    temprature=0.7
 )
+
+chat_model = ChatHugginFace(llm=model)
