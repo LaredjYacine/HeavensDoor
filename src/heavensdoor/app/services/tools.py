@@ -1,10 +1,7 @@
 from langchain.tools import tool
-from .credentials import supabase_key , supabase_url
-from supabase import create_client
+from .credentials import supabase_key , supabase_url, supabase_client
 
-assert supabase_url is not None, "Supabase URL must not be None"
-assert supabase_key is not None, "Supabase Key must not be None"
-supabase_client = create_client(supabase_url, supabase_key)
+
 @tool
 def matching_candidates(query:str):
     """  Use this  tool when a user wants to check a certain criteria of candidates if they have certain requirements
