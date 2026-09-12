@@ -584,6 +584,7 @@ dependencies = [
     { name = "langgraph" },
     { name = "pandas" },
     { name = "supabase" },
+    { name = "truststore" },
 ]
 
 [package.metadata]
@@ -598,6 +599,7 @@ requires-dist = [
     { name = "langgraph", specifier = ">=1.2.11" },
     { name = "pandas", specifier = ">=3.0.5" },
     { name = "supabase", specifier = ">=2.31.0" },
+    { name = "truststore", specifier = ">=0.10.4" },
 ]
 
 [[package]]

@@ -2,7 +2,7 @@ import dotenv
 import os
 from supabase import create_client
 dotenv.load_dotenv()
-
+hf_token:str|None= os.getenv('hf_token')
 supabase_url: str|None = os.getenv('supabase_url')
 supabase_key :str |None = os.getenv('supabase_Key')
 service_role:str|None=os.getenv('service_role')

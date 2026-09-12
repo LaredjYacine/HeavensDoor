@@ -18,6 +18,7 @@ dependencies = [
     "langgraph>=1.2.11",
     "pandas>=3.0.5",
     "supabase>=2.31.0",
+    "truststore>=0.10.4",
 ]
 
 [project.scripts]
