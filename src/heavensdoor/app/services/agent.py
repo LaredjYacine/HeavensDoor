@@ -1,19 +1,15 @@
+from .agent_models import llm_calls , should_continue , tool_node, MessageState
+from langgraph.graph import StateGraph, END , START
 
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-from .credentials import hf_token
-import truststore
-truststore.inject_into_ssl()
-if hf_token is None:
-   raise ValueError("hf_token is not set")
+agent_builder = StateGraph(MessageState)
+agent_builder.add_node("llm_calls",llm_calls)#type: ignore
+agent_builder.add_node("tool_node",tool_node)#type: ignore
 
-
-
-model= HuggingFaceEndpoint(
-    repo_id="LynixSakara/Hopefully_Not_Overfitted",
-    task="text-generation",
-    do_sample=False,
-    huggingfacehub_api_token=hf_token,
-)# type: ignore
-
-response = model.invoke("my skills are python and i need a job")
-print(response)
+agent_builder.add_edge(START, "llm_calls")
+agent_builder.add_conditional_edges(
+    "llm_calls"
+    ,should_continue,
+    ["tool_node",END]
+)
+agent_builder.add_edge("tool_node","llm_calls")
+agent = agent_builder.compile()
