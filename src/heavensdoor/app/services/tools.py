@@ -1,5 +1,18 @@
 from langchain.tools import tool
 from .credentials import supabase_key , supabase_url, supabase_client
+from .Search_function import hybridSearch
+
+
+
+@tool
+def Search(query:str):
+    """ Use this When a users instructions are Vague This will make a HybridSearch to find the answer this will return an array with information from job_description column
+    Args:
+        query: what the user is looking for it has to be a vague expression such as (eg. Something focused on fixing database bottlenecks and optimizing slow queries rather than building frontend UI.)
+
+    """
+    result = hybridSearch(query)
+    return result
 
 
 @tool
@@ -67,4 +80,4 @@ def table_schema(table_name:str):
 
 
 
-tools= [table_schema,get_tables,matching_jobs,matching_candidates]
+tools= [Search,table_schema,get_tables,matching_jobs,matching_candidates]
