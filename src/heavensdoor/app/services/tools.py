@@ -11,9 +11,11 @@ def Search(query:str):
         query: what the user is looking for it has to be a vague expression such as (eg. Something focused on fixing database bottlenecks and optimizing slow queries rather than building frontend UI.)
 
     """
-    result = hybridSearch(query)
-    return result
-
+    try :
+        result = hybridSearch(query)
+        return result
+    except Exception as e:
+        return str(e)
 
 @tool
 def matching_candidates(query:str):
@@ -23,15 +25,18 @@ def matching_candidates(query:str):
 Args:
     query : A Python expression string interacting with supabase_client supabase_client  and the supabase commands (eg . supabase_client.table("employees").select("*").execute()) )
     """
-    global_env={
-        "__builtins__": {},
-        'supabase_client':supabase_client
-    }
-    if 'delete'or 'insert'or 'truncate' in query.lower():
-        return  'Cannot delete insert or Truncate You can only View and fetch '
+    try:
+        global_env={
+            "__builtins__": {},
+            'supabase_client':supabase_client
+        }
+        if 'delete'or 'insert'or 'truncate' in query.lower():
+            return  'Cannot delete insert or Truncate You can only View and fetch '
 
-    result= eval(query,global_env)
-    return result
+        result= eval(query,global_env)
+        return result
+    except Exception as e:
+        return str(e)
 
 @tool
 def matching_jobs(query:str):
@@ -40,16 +45,18 @@ def matching_jobs(query:str):
 Args:
     query : A Python expression string interacting with supabase_client supabase_client  and the supabase commands (eg . supabase_client.table("employees").select("*").execute()) )
     """
-    global_env={
-        "__builtins__": {},
-        'supabase_client':supabase_client
-    }
-    if 'delete'or 'insert'or 'truncate' in query.lower():
-        return  'Cannot delete insert or Truncate You can only View and fetch '
+    try:
+        global_env={
+            "__builtins__": {},
+            'supabase_client':supabase_client
+        }
+        if 'delete'or 'insert'or 'truncate' in query.lower():
+            return  'Cannot delete insert or Truncate You can only View and fetch '
 
-    result= eval(query,global_env)
-    return result
-
+        result= eval(query,global_env)
+        return result
+    except Exception as e:
+        return str(e)
 
 @tool
 def get_tables():
