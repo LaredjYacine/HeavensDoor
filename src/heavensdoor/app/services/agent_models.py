@@ -15,7 +15,7 @@ if hf_token is None:
 
 
 model= HuggingFaceEndpoint(
-    repo_id="Qwen/Qwen2.5-3B-Instruct",
+    repo_id="Qwen/Qwen2.5-7B-Instruct",
     do_sample=False,
     provider="featherless-ai",
     huggingfacehub_api_token=hf_token,
@@ -42,20 +42,21 @@ LLM decides whether to call a tool or not
 
     """
     return {
-        'messages':
-            [
-                model_with_tools.invoke(
-                    [
-                        SystemMessage(
-                            content='You are a helpful Assistant tasked with finding  candidates fit for the Job Or Jobs for Candidates Searching for a job'
+        "messages": [
+            model_with_tools.invoke(
+                [
+                    SystemMessage(
+                        content=(
+                            """ you are an assistant your task is to Help the user To either find a candidate or a job Your General Summarize the out put to fit the users request """
                         )
-                        *state['messages']
-
-                    ]
-                )
-            ],
-            'llm_calls': state.get('llm_calls', 0 )+1
+                    )
+                ]
+                + state["messages"]
+            )
+        ],
+        "llm_calls": state.get('llm_calls', 0) + 1
     }
+
 
 
 

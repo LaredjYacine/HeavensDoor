@@ -597,6 +597,7 @@ dependencies = [
     { name = "pandas" },
     { name = "slowapi" },
     { name = "supabase" },
+    { name = "tenacity" },
     { name = "truststore" },
 ]
 
@@ -613,6 +614,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=3.0.5" },
     { name = "slowapi", specifier = ">=0.1.10" },
     { name = "supabase", specifier = ">=2.31.0" },
+    { name = "tenacity", specifier = ">=9.1.4" },
     { name = "truststore", specifier = ">=0.10.4" },
 ]
 
