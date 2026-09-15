@@ -9,6 +9,5 @@ service_role:str|None=os.getenv('service_role')
 if supabase_key is None or supabase_url is None:
     raise ValueError('Supabase Credentials must not be None')
 
-
-
+redisurl = os.getenv('redisurl')
 supabase_client = create_client(supabase_url, supabase_key)

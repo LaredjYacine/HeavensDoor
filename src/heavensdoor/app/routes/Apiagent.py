@@ -1,49 +1,80 @@
 from fastapi import APIRouter, HTTPException, status
+from heavensdoor.app.services.celery import celery_app
 from ..services.limiter import limiter
 from fastapi.requests import Request
-from ..services.agent import llm
-from langchain.messages import HumanMessage
-from langgraph.errors import GraphRecursionError
-from ..services.Logger import JsonLlmLogger
-from fastapi.sse import EventSourceResponse
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from huggingface_hub.errors import BadRequestError
-import httpx
-import pprint
 
+from fastapi.sse import EventSourceResponse
+
+from upstash_redis import Redis
+import uuid
+import json
+client = Redis.from_env()
 
 
 route = APIRouter()
 
-def streaming(messages):
-    for chunk in messages :
-        if chunk.get('type') == "messages":
-            message , metadata = chunk['data']
-            yield message.content
 
-@retry(
-    stop=stop_after_attempt(4),  # Try up to 4 times
-    wait=wait_exponential(multiplier=2, min=2, max=10),  # Wait 2s, 4s, 8s... between tries
-    retry=retry_if_exception_type((BadRequestError, httpx.HTTPStatusError)),
-    reraise=True  # Raise the final error if all retries fail
-)
-def run_agent_safely( payload, ):
-    return llm.invoke({"messages":payload} , config={'recursion_limit':15  , 'callbacks':[JsonLlmLogger()]})#type: ignore
-
-@route.get('/agent')
+@route.post('/agent')
 @limiter.limit("5/minute")
-def agent(request: Request, query:str):#, response_class=EventSourceResponse):
-    message = [HumanMessage(query)]
-    if message is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='query must not be None')
+def agent(request: Request, idempotency_id:str|None,query:str):#, response_class=EventSourceResponse):
     try :
-        #result = llm.stream({"messages":message},version='v2', config={'recursion_limit':15  , 'callbacks':[JsonLlmLogger()]}, stream_mode="messages")#type: ignore
-        #= streaming(result)
-        result = run_agent_safely(message)
-        output=[pprint.pformat(output.content, indent=2, width=40) for output in reversed(result['messages']) if getattr(output,'type', None)=='ai']
-        return output
+        if idempotency_id is None:
+            idempotency_id = str(uuid.uuid4())
+        claimed = client.set(
+            f'idem_id : {idempotency_id}',
+            'pending',
+            nx=True,
+            ex=86400
+        )
+        if not claimed :
+            job_id = client.get(f'idem_id : {idempotency_id}')
 
-    except GraphRecursionError:
-        return 'placeholder error'
+            return {
+                'status':'Duplicate',
+                'job_id': job_id,
+                'idempotency_id': idempotency_id,
+                'message': 'Job already submitted before'
+            }
+        task= celery_app.send_task('agent', args=[query])
+        client.set(
+            f'idem_id : {idempotency_id}',
+            task.id,
+            ex=86400
+        )
+        return{
+            'job_id':task.id,
+            'status':'202 Accepted',
+            'idempotency_key':idempotency_id,
+            'message':'job Submitted go to /result '
+        }
     except Exception as e:
-        return str(e)
+        return {
+            'status': 'Error',
+            'message': str(e)
+        }
+
+
+
+@route.get('/result')
+@limiter.limit("5/minute")
+def result(request:Request, job_id: str):
+    try :
+        data = client.get(f'job_id : {job_id}')
+        if data :
+            data_json = json.loads(data)
+            if data_json :
+                return data_json
+        result = celery_app.AsyncResult(job_id, app =celery_app)
+        raw_data ={
+            'job_id':job_id,
+            'state':result.state,
+            'result':result.result if result.ready() else None
+        }
+        if result.state == 'SUCCESS':
+            client.set(f'job_id:{job_id}',json.dumps(raw_data),ex=3600)
+        return raw_data
+    except Exception as e:
+        return {
+            'status': 'Error',
+            'message': str(e)
+        }
