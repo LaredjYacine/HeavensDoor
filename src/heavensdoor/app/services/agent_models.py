@@ -15,7 +15,7 @@ if hf_token is None:
 
 
 model= HuggingFaceEndpoint(
-    repo_id="Qwen/Qwen2.5-7B-Instruct",
+    repo_id="Qwen/Qwen2.5-3B-Instruct",
     do_sample=False,
     provider="featherless-ai",
     huggingfacehub_api_token=hf_token,
