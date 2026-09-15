@@ -41,7 +41,7 @@ def matching_jobs(query: str) -> str:
         query: A string that is the name of the job title.
     """
     try:
-        response = supabase_client.table("Jobs").select("job_name,skill_requirement,work_type").ilike("job_name", f"%{query}%").execute()
+        response = supabase_client.table("Jobs").select("job_name,skill_requirement,work_type, role ,company").ilike("job_name", f"%{query}%").execute()
 
         # FIX: Check response.data, not the response object itself
         if response.data:

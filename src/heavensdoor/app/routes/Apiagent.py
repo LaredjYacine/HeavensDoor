@@ -9,6 +9,7 @@ from fastapi.sse import EventSourceResponse
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from huggingface_hub.errors import BadRequestError
 import httpx
+import pprint
 
 
 
@@ -39,7 +40,7 @@ def agent(request: Request, query:str):#, response_class=EventSourceResponse):
         #result = llm.stream({"messages":message},version='v2', config={'recursion_limit':15  , 'callbacks':[JsonLlmLogger()]}, stream_mode="messages")#type: ignore
         #= streaming(result)
         result = run_agent_safely(message)
-        output=[output for output in result['messages']]
+        output=[pprint.pformat(output.content, indent=2, width=40) for output in reversed(result['messages']) if getattr(output,'type', None)=='ai']
         return output
 
     except GraphRecursionError:
