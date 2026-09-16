@@ -1,0 +1,23 @@
+body {
+	background-color: black;
+
+}
+
+h1 {
+	color: white;
+}
+
+.Font {
+	text-align:center;
+	margin-top: 10rem;
+	font-size: 1.5rem;
+	font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+.prompt{
+    width: 20rem;
+    padding: 1rem;
+    border-radius: 10px;
+}
+.user_prompt{
+
+}
