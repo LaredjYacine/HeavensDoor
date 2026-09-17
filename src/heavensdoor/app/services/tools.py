@@ -2,12 +2,18 @@ from langchain.tools import tool
 from .credentials import supabase_key, supabase_url, supabase_client
 from .Search_function import hybridSearch
 from .credentials import hf_token
-from gradio_client import Client
-client = Client("LynixSakara/Job_Finder_Model", token=hf_token)
+from .SSL_fix import Finetuned
+
 @tool
 def Search(query: str) -> str:
-    """Use this when a user's instructions are vague. This makes a HybridSearch to find the answer.
-    It returns an array with information from the job_description column.
+    """Use this ONLY to search the job postings database using a vague or fuzzy description
+        of a job (not a general knowledge question, not career advice). This performs a HybridSearch
+        over the job_description column and returns matching postings.
+
+        Use this when the user is describing a job/role they want to find in the database, e.g.
+        "something focused on fixing database bottlenecks" or "a remote-friendly frontend role."
+        Do NOT use this for questions asking for advice, explanations, or general knowledge
+        (e.g. "what skills do I need for X") — use default_Answer for those instead.
 
     Args:
         query: What the user is looking for. Must be a vague expression (e.g., "Something focused on fixing database bottlenecks").
@@ -86,10 +92,16 @@ def table_schema(table_name: str) -> str:
 
 @tool
 def default_Answer(query:str):
-    """ Use this tool when no other tool is appropriate for the user's request or you dont get data needed to answer the Users prompt
+    """ Use this for general knowledge questions, advice, explanations, or anything that is
+        NOT a request to search/query the Jobs or Candidates database. Examples: "what skills are
+        needed for backend development", "how do I write a good resume", "explain what a PM does."
+
+        If the user's question doesn't require looking up specific job postings, candidates, or
+        database records, use this tool rather than Search.
+
     Args:
         query: The user's request.
     """
-    result = client.predict(user_text=query, api_name="/predict")
+    result = Finetuned.predict(user_text=query, api_name="/predict")
     return str(result)
 tools = [default_Answer, Search, table_schema, get_tables, matching_jobs, matching_candidates]

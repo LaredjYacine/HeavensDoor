@@ -691,15 +691,18 @@ source = { editable = "." }
 dependencies = [
     { name = "bm25s", extra = ["full"] },
     { name = "celery" },
+    { name = "certifi" },
     { name = "dotenv" },
     { name = "fastapi" },
     { name = "fastembed" },
     { name = "gradio-client" },
+    { name = "huggingface-hub" },
     { name = "langchain" },
     { name = "langchain-huggingface" },
     { name = "langchain-ollama" },
     { name = "langgraph" },
     { name = "pandas" },
+    { name = "python-certifi-win32" },
     { name = "redis" },
     { name = "slowapi" },
     { name = "supabase" },
@@ -712,15 +715,18 @@ dependencies = [
 requires-dist = [
     { name = "bm25s", extras = ["full"], specifier = ">=0.3.11" },
     { name = "celery", specifier = ">=5.6.3" },
+    { name = "certifi", specifier = ">=2026.7.22" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "fastapi", specifier = ">=0.141.1" },
     { name = "fastembed", specifier = ">=0.8.0" },
     { name = "gradio-client", specifier = ">=2.7.0" },
+    { name = "huggingface-hub", specifier = ">=1.31.0" },
     { name = "langchain", specifier = ">=1.4.0" },
     { name = "langchain-huggingface", specifier = ">=1.2.2" },
     { name = "langchain-ollama", specifier = ">=1.1.0" },
     { name = "langgraph", specifier = ">=1.2.11" },
     { name = "pandas", specifier = ">=3.0.5" },
+    { name = "python-certifi-win32", specifier = ">=1.6.1" },
     { name = "redis", specifier = ">=8.1.0" },
     { name = "slowapi", specifier = ">=0.1.10" },
     { name = "supabase", specifier = ">=2.31.0" },
@@ -2649,6 +2655,19 @@ wheels = [
 ]
 
 [[package]]
+name = "python-certifi-win32"
+version = "1.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "certifi" },
+    { name = "setuptools-scm" },
+    { name = "wrapt" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/16/c5/9c455ba848b14adce70c0176106fad190b7854acdc120cf9e72af7b9ac2d/python_certifi_win32-1.6.1-py2.py3-none-any.whl", hash = "sha256:508fd4fb1730cad2d9dada061df737650c8cfaa205d64657faa4cc6a55384402", size = 7256, upload-time = "2022-07-02T22:13:55.87Z" },
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 source = { registry = "https://pypi.org/simple" }
@@ -3157,6 +3176,29 @@ wheels = [
 ]
 
 [[package]]
+name = "setuptools"
+version = "84.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/44/f5da03a8ef95d369145c5bb53050e7877c9f3d312e128605fd9504829143/setuptools-84.0.0.tar.gz", hash = "sha256:f4695c21257f0d9b537ec2692c941d02ee143b7cc1276941349a546573b2ef73", size = 1168449, upload-time = "2026-08-08T18:27:58.365Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/95/9c/c510029fc6ef33a6275cd2c5d3cecd6613dfd6aa401d57c54f1c18852ccf/setuptools-84.0.0-py3-none-any.whl", hash = "sha256:51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670", size = 818216, upload-time = "2026-08-08T18:27:56.719Z" },
+]
+
+[[package]]
+name = "setuptools-scm"
+version = "10.2.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+    { name = "setuptools" },
+    { name = "vcs-versioning" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3c/87/1ff7adcf6e03021ae58ce401565be3c9b8c739a44d14a8253d38b3754117/setuptools_scm-10.2.3.tar.gz", hash = "sha256:f179ed3e2a63cf5823e5ee9aa9ca08386219400443a0553224d72dde3f206b44", size = 67696, upload-time = "2026-09-03T13:03:29.565Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4b/00/e9c0591b77186f6c1a8479500456ee72cd30730836c58b7a8a2654909c23/setuptools_scm-10.2.3-py3-none-any.whl", hash = "sha256:7fcf8ff55c95eb8b572a23c81495e5559b9b90f3e82fcf0952bb76c37de27a81", size = 29123, upload-time = "2026-09-03T13:03:28.346Z" },
+]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3501,6 +3543,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f2/0f/3f86e61397dd33bf2ccf28188c40db6a740658aeebbbf6e7dbc101a1f487/uvicorn-0.52.4.tar.gz", hash = "sha256:73acfee47a0b133c5de13d219492d62d8a31e935f4fe6e41a232451a15379f86", size = 100627, upload-time = "2026-08-19T06:27:41.821Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f1/79/4a20b54ab0491485ccd8c077db2d39187c7f12b3e15485d38a7be37c81b4/uvicorn-0.52.4-py3-none-any.whl", hash = "sha256:f86e41a149d7d05a9969337e3946a9c171c06a5d42680896daaba624aeac8da1", size = 79871, upload-time = "2026-08-19T06:27:40.36Z" },
+]
+
+[[package]]
+name = "vcs-versioning"
+version = "2.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3e/97/792a4ef20344f9af3e16098b58b45eb5d6202259b84fc80c43bc000a5e6c/vcs_versioning-2.4.1.tar.gz", hash = "sha256:d4575de3115ec9434393c87c80ffb0eb98a16056bfe2b11ce0f3a97aff67fe0a", size = 164222, upload-time = "2026-09-16T07:47:40.267Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d7/20/29378edc8d7d2ce41892adc1356f4c6c6ae03b945d04ca6ade61afa3d5dc/vcs_versioning-2.4.1-py3-none-any.whl", hash = "sha256:b7089ec9bef67b2cad82148366e8eac4d63173f440ec62628282b59eb96bbcb0", size = 122157, upload-time = "2026-09-16T07:47:38.811Z" },
 ]
 
 [[package]]

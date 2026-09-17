@@ -16,7 +16,10 @@ import time
 import json
 from celery.exceptions import MaxRetriesExceededError
 from upstash_redis import Redis
-
+import certifi
+from gradio_client import Client
+from ..services.credentials import hf_token
+from ..services.SSL_fix import Finetuned
 
 
 client = Redis.from_env()
@@ -50,7 +53,8 @@ def agent(self ,query:str):
             return output
 
         except GraphRecursionError:
-            return 'placeholder error'
+            result = Finetuned.predict(user_text=query, api_name="/predict")
+            return result
 
     except MaxRetriesExceededError as e:
         dlq={
