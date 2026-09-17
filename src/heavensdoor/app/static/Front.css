@@ -1,23 +1,51 @@
 body {
-	background-color: black;
-
+    background-color: black;
 }
 
 h1 {
-	color: white;
+    color: white;
+    text-align: center;
+    margin-top: 10rem;
+    font-size: 1.5rem;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
-.Font {
-	text-align:center;
-	margin-top: 10rem;
-	font-size: 1.5rem;
-	font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-}
-.prompt{
+.prompt {
     width: 20rem;
     padding: 1rem;
     border-radius: 10px;
 }
-.user_prompt{
 
+.user_prompt {
+    text-align: center;
 }
+
+#chat {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.message {
+    color: #ffffff;
+    padding: 1rem;
+    border-radius: 16px;
+    line-height: 1.4;
+
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.User {
+    align-self: flex-end;
+    background-color: #0084ff;
+    color: #ffffff;
+}
+
+.assistant {
+    align-self: flex-start;
+    background-color: #e4e6eb;
+    color: #050505;

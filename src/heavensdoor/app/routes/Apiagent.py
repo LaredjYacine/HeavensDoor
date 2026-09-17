@@ -16,7 +16,7 @@ route = APIRouter()
 
 
 @route.post('/agent')
-@limiter.limit("5/minute")
+@limiter.limit("1000/minute")
 def agent(request: Request,query:str, idempotency_id:Optional[str]=None):#, response_class=EventSourceResponse):
     try :
         if idempotency_id is None:
@@ -57,7 +57,7 @@ def agent(request: Request,query:str, idempotency_id:Optional[str]=None):#, resp
 
 
 @route.get('/result')
-@limiter.limit("5/minute")
+@limiter.limit("10000/minute")
 def result(request:Request, job_id: str):
     try :
         data = client.get(f'job_id : {job_id}')
