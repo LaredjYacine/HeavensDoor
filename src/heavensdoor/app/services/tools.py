@@ -1,7 +1,9 @@
 from langchain.tools import tool
 from .credentials import supabase_key, supabase_url, supabase_client
 from .Search_function import hybridSearch
-
+from .credentials import hf_token
+from gradio_client import Client
+client = Client("LynixSakara/Job_Finder_Model", token=hf_token)
 @tool
 def Search(query: str) -> str:
     """Use this when a user's instructions are vague. This makes a HybridSearch to find the answer.
@@ -81,4 +83,13 @@ def table_schema(table_name: str) -> str:
         print('Error occurred on table_schema tool:', str(e))
         return f"Error: {str(e)}"
 
-tools = [Search, table_schema, get_tables, matching_jobs, matching_candidates]
+
+@tool
+def default_Answer(query:str):
+    """ Use this tool when no other tool is appropriate for the user's request or you dont get data needed to answer the Users prompt
+    Args:
+        query: The user's request.
+    """
+    result = client.predict(user_text=query, api_name="/predict")
+    return str(result)
+tools = [default_Answer, Search, table_schema, get_tables, matching_jobs, matching_candidates]

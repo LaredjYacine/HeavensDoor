@@ -13,6 +13,7 @@ dependencies = [
     "dotenv>=0.9.9",
     "fastapi>=0.141.1",
     "fastembed>=0.8.0",
+    "gradio-client>=2.7.0",
     "langchain>=1.4.0",
     "langchain-huggingface>=1.2.2",
     "langchain-ollama>=1.1.0",

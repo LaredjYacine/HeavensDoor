@@ -8,6 +8,7 @@ from fastapi.sse import EventSourceResponse
 from upstash_redis import Redis
 import uuid
 import json
+from typing import Optional
 client = Redis.from_env()
 
 
@@ -16,7 +17,7 @@ route = APIRouter()
 
 @route.post('/agent')
 @limiter.limit("5/minute")
-def agent(request: Request, idempotency_id:str|None,query:str):#, response_class=EventSourceResponse):
+def agent(request: Request,query:str, idempotency_id:Optional[str]=None):#, response_class=EventSourceResponse):
     try :
         if idempotency_id is None:
             idempotency_id = str(uuid.uuid4())
@@ -65,10 +66,15 @@ def result(request:Request, job_id: str):
             if data_json :
                 return data_json
         result = celery_app.AsyncResult(job_id, app =celery_app)
+        if result.ready():
+
+            print(type(result.result))
+            if isinstance(result.result , list):
+                data = ','.join(result.result)
         raw_data ={
             'job_id':job_id,
             'state':result.state,
-            'result':result.result if result.ready() else None
+            'result':data
         }
         if result.state == 'SUCCESS':
             client.set(f'job_id:{job_id}',json.dumps(raw_data),ex=3600)

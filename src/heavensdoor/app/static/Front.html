@@ -4,15 +4,18 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Heavens Door </title>
-	<link rel="stylesheet" href="./Front.css">
+	<link rel="stylesheet" href="/static/Front.css"">
 </head>
 <body>
 <div class="Font">
 <h1>Heavens Door</h1>
-<div class="user_prompt">
-    <form id="myform" method="post">
+<div id='chat'>
 
-    <input class='prompt' type="text" id="prompt" , placeholder="Chat with Heaven">
+</div>
+<div class="user_prompt">
+    <form id="myform">
+
+    <input class='prompt' type="text" id="prompt"  placeholder="Chat with Heaven">
     </form>
 </div>
 </div>
@@ -21,7 +24,8 @@
 
 
 
-
-	<script src="./script.js"></script>
+<<script >
+ window.BACKEND_URL = "__BACKEND_URL__";</script>
+	<script src="/static/script.js"></script>
 </body>
 </html>

@@ -15,11 +15,13 @@ if hf_token is None:
 
 
 model= HuggingFaceEndpoint(
-    repo_id="Qwen/Qwen2.5-3B-Instruct",
+    repo_id="LynixSakara/Qwen_Job",
     do_sample=False,
     provider="featherless-ai",
     huggingfacehub_api_token=hf_token,
 )# type: ignore
+
+
 
 
 chat_model = ChatHuggingFace(llm=model)
@@ -47,7 +49,7 @@ LLM decides whether to call a tool or not
                 [
                     SystemMessage(
                         content=(
-                            """ you are an assistant your task is to Help the user To either find a candidate or a job Your General Summarize the out put to fit the users request """
+                            """ you are an assistant your task is to Help the user To either find a candidate or a job,  Your must give a General summary to  the output to fit the users request """
                         )
                     )
                 ]
