@@ -2,29 +2,39 @@ const form = document.getElementById('myform');
 const promptInput = document.getElementById('prompt');
 
 let query = '';
-const Id = 'addbc075-8aa8-4652-96bc-bafb730c5e5a';
+let Lock = false;
 
 const url = window.BACKEND_URL;
-
 form.addEventListener('submit', async function (event) {
     event.preventDefault();
+    if (Lock) return;
 
     query = promptInput.value;
     if (!query) return;
-
+    Lock = true;
+    promptInput.disabled = true;
+    promptInput.placeholder = 'Assistant is typing ';
     addUserMessage(query);
+    let Id = await postprompt(query);
     promptInput.value = '';
-
+    if (!Id){
+      Lock = false;
+      promptInput.disabled = false;
+      promptInput.placeholder = 'Chat with heaven';
+      return
+    }
     const data = await getResult(Id);
 
     if (data && data.result) {
       const cleanedText = cleanPythonString(data.result);
 
-      addAssistantMessage(cleanedText);
+      await  addAssistantMessageAnimated(cleanedText);
     }
+    Lock = false;
+    promptInput.disabled = false;
+    promptInput.placeholder = 'Chat with heaven';
 });
 
-// Helper function to clean Python string chunks and tuple artifacts
 function cleanPythonString(rawStr) {
     if (!rawStr) return '';
     let cleaned = rawStr.trim();
@@ -84,7 +94,7 @@ async function getResult(Id) {
 
         const result = await response.json();
 
-        if (result.state == 'pending') {
+        if (result.state == 'PENDING') {
             await new Promise(resolve => setTimeout(resolve, 1000));
             return await getResult(Id);
         }
@@ -119,4 +129,66 @@ function addUserMessage(text) {
 
     chat.appendChild(message);
     chat.scrollTop = chat.scrollHeight;
+}
+
+async function addAssistantMessageAnimated(text) {
+    const chat = document.getElementById("chat");
+
+    const message = document.createElement("div");
+    message.classList.add("message", "assistant");
+    chat.appendChild(message);
+
+    let currentText = "";
+    let index = 0;
+    const speed = 3; // Lower number = faster typing speed (milliseconds per character)
+
+    return new Promise((resolve) => {
+        const interval = setInterval(() => {
+            if (index < text.length) {
+                currentText += text[index];
+                message.innerHTML = marked.parse(currentText);
+                chat.scrollTop = chat.scrollHeight; // Auto-scrolls smoothly
+                index++;
+            } else {
+                clearInterval(interval);
+                resolve();
+            }
+        }, speed);
+    });
+}
+async function postprompt(text, idempotency ){
+  try {
+    if (idempotency) {
+      body = `?query=${text}&idempotency=${idempotency}`
+    } else {
+      body = `?query=${text}`
+    }
+    const response = await fetch(
+      `${url}/agent${body}`,
+      {
+        method: 'POST',
+        headers: {
+          'accept': '*/*'
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Couldn't post the prompt: ${response.status}`);
+    }
+    const post_response = await response.json();
+      console.log('test', post_response.job_id);
+
+    if (post_response && post_response.status == '202 Accepted') {
+      Id = post_response.job_id
+      console.log('This is the Id in the func   : ' + Id);
+      return Id;
+    }
+    return null
+
+
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }

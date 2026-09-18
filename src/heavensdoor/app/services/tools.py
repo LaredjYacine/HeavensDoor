@@ -5,19 +5,15 @@ from .credentials import hf_token
 from .SSL_fix import Finetuned
 
 @tool
-def Search(query: str) -> str:
-    """Use this ONLY to search the job postings database using a vague or fuzzy description
-        of a job (not a general knowledge question, not career advice). This performs a HybridSearch
-        over the job_description column and returns matching postings.
+def HybridRag(query: str) -> str:
+    """Use this ONLY when the user does NOT provide a clear job title, but instead
+        describes responsibilities, technologies, or vague criteria (e.g., "something
+        focused on fixing database bottlenecks" or "a remote-friendly frontend role").
+        Do NOT use this if the user names a specific job title like "software engineer".
 
-        Use this when the user is describing a job/role they want to find in the database, e.g.
-        "something focused on fixing database bottlenecks" or "a remote-friendly frontend role."
-        Do NOT use this for questions asking for advice, explanations, or general knowledge
-        (e.g. "what skills do I need for X") — use default_Answer for those instead.
-
-    Args:
-        query: What the user is looking for. Must be a vague expression (e.g., "Something focused on fixing database bottlenecks").
-    """
+        Args:
+            query: A description of duties, skills, or vague requirements.
+        """
     try:
         result = hybridSearch(query)
         return str(result)
@@ -43,11 +39,13 @@ def matching_candidates(query: str) -> str:
 
 @tool
 def matching_jobs(query: str) -> str:
-    """Search for jobs in the database by job title when a user wants a job or is looking for a job.
+    """Use this ONLY when the user explicitly names a specific job title or role
+        (e.g., "Software Engineer", "Data Scientist", "Product Manager").
+        This performs an exact/keyword search by job title.
 
-    Args:
-        query: A string that is the name of the job title.
-    """
+        Args:
+            query: The precise job title name extracted from the user prompt (e.g., "software engineer").
+        """
     try:
         response = supabase_client.table("Jobs").select("job_name,skill_requirement,work_type, role ,company").ilike("job_name", f"%{query}%").execute()
 
@@ -104,4 +102,4 @@ def default_Answer(query:str):
     """
     result = Finetuned.predict(user_text=query, api_name="/predict")
     return str(result)
-tools = [default_Answer, Search, table_schema, get_tables, matching_jobs, matching_candidates]
+tools = [default_Answer, HybridRag, table_schema, get_tables, matching_jobs, matching_candidates]

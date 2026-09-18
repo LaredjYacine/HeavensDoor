@@ -11,3 +11,8 @@ if supabase_key is None or supabase_url is None:
 
 redisurl = os.getenv('redisurl')
 supabase_client = create_client(supabase_url, supabase_key)
+groq_api_key = os.getenv('groq')
+if groq_api_key is None:
+    raise ValueError("groq_api_key is not set")
+if "GROQ_API_KEY" not in os.environ:
+    os.environ["GROQ_API_KEY"] = groq_api_key

@@ -3,28 +3,31 @@ from unittest.signals import removeResult
 from langchain.messages import AnyMessage, SystemMessage, HumanMessage, ToolMessage
 import operator
 from langgraph.graph import END , START
-
+from langchain_groq import ChatGroq
 from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-from .credentials import hf_token
+from .credentials import hf_token, groq_api_key
 from .tools import tools
 import truststore
+
 truststore.inject_into_ssl()
 if hf_token is None:
    raise ValueError("hf_token is not set")
 
 
-
-model= HuggingFaceEndpoint(
-    repo_id="Qwen/Qwen2.5-3B-Instruct",
-    do_sample=False,
-    provider="featherless-ai",
-    huggingfacehub_api_token=hf_token,
-)# type: ignore
-
+# model= HuggingFaceEndpoint(
+#     repo_id="Qwen/Qwen2.5-3B-Instruct",
+#     do_sample=False,
+#     provider="featherless-ai",
+#     huggingfacehub_api_token=hf_token,
+# )# type: ignore
 
 
+chat_model = ChatGroq(
+    model="qwen/qwen3.8-27b",
+    temperature=0.7
+)
 
-chat_model = ChatHuggingFace(llm=model)
+#chat_model = ChatHuggingFace(llm=model)
 messages = [HumanMessage(content="Explain quantum computing in one simple sentence.")]
 tools_by_name= {tool.name : tool  for tool in tools}
 model_with_tools = chat_model.bind_tools(tools)

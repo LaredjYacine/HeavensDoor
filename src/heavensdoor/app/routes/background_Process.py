@@ -34,7 +34,7 @@ def streaming(messages):
 @retry(
     stop=stop_after_attempt(4),  # Try up to 4 times
     wait=wait_exponential(multiplier=2, min=2, max=10),  # Wait 2s, 4s, 8s... between tries
-    retry=retry_if_exception_type((BadRequestError, httpx.HTTPStatusError)),
+    retry=retry_if_exception_type((BadRequestError, httpx.HTTPStatusError, Exception)),
     reraise=True  # Raise the final error if all retries fail
 )
 def run_agent_safely( payload, ):
@@ -56,7 +56,15 @@ def agent(self ,query:str):
             result = Finetuned.predict(user_text=query, api_name="/predict")
             return result
 
-    except MaxRetriesExceededError as e:
+
+
+    except Exception as e:
+        error=  str(e).lower()
+        if " temporarily at capacity"  in error or "503" in error :
+            try:
+                raise self.retry(exc=e, countdown=15 * (self.request.retries + 1))
+            except MaxRetriesExceededError:
+                pass
         dlq={
             'prompt':query,
             'time': time.time(),
@@ -66,6 +74,3 @@ def agent(self ,query:str):
         }
         client.rpush("dlq:agent", json.dumps(dlq))
         return {"status": "failed", "moved_to_dlq": True, "error": str(e)}
-
-    except Exception as e:
-        return str(e)
