@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>About — Heaven's Door</title>
+	<meta name="description" content="Heaven's Door — AI-powered recruitment matching for recruiters.">
+	<link rel="icon" type="image/png" href="/static/icon.png">
+	<link rel="stylesheet" href="/static/Front.css">
+	<link rel="stylesheet" href="/static/About.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="about-page">
+	<a class="back-link" href="/">&larr; Back to chat</a>
+
+	<header class="about-hero">
+		<img class="brand-logo about-logo" src="/static/icon.png" alt="Heaven's Door logo">
+		<h1>About Heaven's Door</h1>
+		<p class="about-sub">An AI-powered recruitment matching engine, built for recruiters.</p>
+	</header>
+
+	<main class="about-main">
+
+		<section class="card">
+			<h2>What is Heaven's Door?</h2>
+			<p>
+				Heaven's Door connects <strong>candidates</strong> and <strong>job postings</strong> using a hybrid
+				search-and-reasoning pipeline. It combines vector similarity search, full-text (BM25) search, and a
+				tool-using AI agent to understand vague <em>or</em> highly specific hiring queries and return relevant
+				matches — so you can ask in plain English instead of crafting precise SQL filters.
+			</p>
+		</section>
+
+		<section class="card">
+			<h2>Why recruiters use it</h2>
+			<div class="grid">
+				<div class="tile">
+					<h3>Smart, hybrid search</h3>
+					<p>Semantic meaning + keyword precision are merged for stronger recall across jobs and candidate profiles.</p>
+				</div>
+				<div class="tile">
+					<h3>Agentic reasoning</h3>
+					<p>The agent picks the right tool per query: exact job titles, candidate-by-role, hybrid search, or schema lookups — automatically.</p>
+				</div>
+				<div class="tile">
+					<h3>Async &amp; scalable</h3>
+					<p>Queries run as background jobs (Celery/Redis), so long searches never block the response, and the system scales with demand.</p>
+				</div>
+				<div class="tile">
+					<h3>Reliable by design</h3>
+					<p>Automatic retries with backoff, a fine-tuned fallback model, dead-letter queue for failures, and rate-limited endpoints.</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="card">
+			<h2>Example queries you can ask</h2>
+			<div class="examples">
+				<code>Find me a remote frontend role</code>
+				<code>Show candidates who prefer a data engineer role</code>
+				<code>List full-stack jobs requiring Python and React</code>
+				<code>What jobs match someone with strong communication and leadership skills?</code>
+			</div>
+			<p class="note">Phrase it like you would to a colleague — Heaven's Door figures out the rest.</p>
+		</section>
+
+		<section class="card">
+			<h2>How it works</h2>
+			<ol class="steps">
+				<li><strong>You ask</strong> in your own words — <code>POST /agent</code></li>
+				<li><strong>Deduplication:</strong> each request is keyed so retries don't create duplicate jobs.</li>
+				<li><strong>Agent runs:</strong> a LangGraph agent decides whether to match jobs, match candidates, run a hybrid search, or answer generally.</li>
+				<li><strong>You get the result:</strong> poll <code>GET /result</code> with the returned job id until it resolves.</li>
+				<li><strong>Failures are handled:</strong> retried with backoff, then moved to a dead-letter queue for inspection.</li>
+			</ol>
+		</section>
+
+		<section class="card">
+			<h2>Technology behind it</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>Layer</th>
+						<th>Technology</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr><td>API Framework</td><td>FastAPI</td></tr>
+					<tr><td>Agent Orchestration</td><td>LangGraph + LangChain</td></tr>
+					<tr><td>LLM Providers</td><td>Groq · Hugging Face Inference Endpoints</td></tr>
+					<tr><td>Vector Embeddings</td><td>fastembed (BAAI/bge-small-en-v1.5)</td></tr>
+					<tr><td>Database</td><td>Supabase (Postgres + RPC search functions)</td></tr>
+					<tr><td>Task Queue / Cache</td><td>Celery · Redis (Upstash)</td></tr>
+					<tr><td>Fallback Model</td><td>Fine-tuned model hosted on Gradio</td></tr>
+					<tr><td>Retry Logic</td><td>Tenacity</td></tr>
+				</tbody>
+			</table>
+		</section>
+
+		<section class="card">
+			<h2>API quick reference</h2>
+			<pre>POST /agent?query=&lt;your question&gt;&amp;idempotency_id=&lt;optional key&gt;</pre>
+			<pre>
+{
+  "job_id": "celery-task-id",
+  "status": "202 Accepted",
+  "idempotency_key": "generated-or-provided-uuid",
+  "message": "job Submitted go to /result"
+}</pre>
+			<pre>GET /result?job_id=&lt;job_id from above&gt;</pre>
+			<pre>
+{
+  "job_id": "celery-task-id",
+  "state": "SUCCESS | PENDING | FAILURE",
+  "result": "..."
+}</pre>
+		</section>
+
+		<section class="card cta">
+			<a class="cta-btn" href="/">Start chatting with Heaven's Door</a>
+		</section>
+
+	</main>
+</body>
+</html>

@@ -1,3 +1,7 @@
+/* =========================
+   HEAVEN'S DOOR — FRONTEND
+   ========================= */
+
 html,
 body {
     width: 100%;
@@ -8,23 +12,154 @@ body {
 
 body {
     background-color: #1A1A1A;
-    background-image: url('ChatGPT_Image_Sep_18__2026__06_42_06_PM-removebg-preview.png');
-    background-repeat: no-repeat;
-    background-position: left center;
-    background-size:contain;
+    background-image:
+        linear-gradient(90deg, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 0.42) 42%, rgba(26, 26, 26, 0.86) 78%, rgba(26, 26, 26, 0.95) 100%),
+        url('ChatGPT_Image_Sep_18__2026__06_42_06_PM-removebg-preview.png');
+    background-repeat: no-repeat, no-repeat;
+    background-position: left center, left center;
+    background-size: contain;
     background-attachment: fixed;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #ffffff;
 }
 
 /* =========================
-   DESKTOP - 1920x1080
+   HEADER — brand title + floating icon
    ========================= */
 
-h1 {
-    color: #FFF68F;
+.topbar {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-top: clamp(3rem, 9vh, 6rem);
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 4rem;
+}
+
+.brand-logo {
+    width: 84px;
+    height: 84px;
+    object-fit: cover;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 246, 143, 0.35);
+
+    animation: float 6s ease-in-out infinite;
+}
+
+.brand h1 {
+    margin: 0;
+    font-family: 'Anton', Impact, sans-serif;
+    font-weight: 400;
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    line-height: 1;
+    letter-spacing: 0.05em;
     text-align: center;
-    margin-top: 10rem;
-    font-size: 3.5rem;
+    background: linear-gradient(100deg, #fff68f 5%, #f6c453 55%, #e8a33d 95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 6px 26px rgba(240, 180, 41, 0.35));
+}
+
+.about-link {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.6rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #FFF68F;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 246, 143, 0.45);
+    border-radius: 999px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.about-link:hover {
+    background-color: #FFF68F;
+    color: #1A1A1A;
+}
+
+/* =========================
+   CHAT
+   ========================= */
+
+#chat {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    width: min(700px, 90vw);
+    max-width: 700px;
+
+    margin: 1.5rem auto 0;
+    padding: 20px;
+    box-sizing: border-box;
+    padding-bottom: 150px;
+}
+
+.message {
+    color: #ffffff;
+    padding: 1rem;
+    border-radius: 16px;
+    line-height: 1.4;
+    font-size: 20px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.message.User {
+    align-self: flex-end;
+    background-color: #008080;
+    color: #F5F5DC;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 1px;
+}
+
+.message.assistant {
+    align-self: flex-start;
+    background-color: #C1E1C1;
+    color: #3B4D3C;
     font-family: 'Anton', sans-serif;
+}
+
+/* -- Typing indicator (agent is thinking) -- */
+
+.message.typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Anton', sans-serif;
+}
+
+.message.typing-indicator span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #008080;
+    opacity: 0.45;
+    animation: blink 1.2s ease-in-out infinite;
+}
+
+.message.typing-indicator span:nth-child(2) { animation-delay: 0.18s; }
+.message.typing-indicator span:nth-child(3) { animation-delay: 0.36s; }
+
+/* =========================
+   PROMPT INPUT
+   ========================= */
+
+.user_prompt {
+    width: 100%;
+    text-align: center;
 }
 
 .prompt {
@@ -49,52 +184,33 @@ h1 {
     box-sizing: border-box;
 }
 
-.user_prompt {
-    width: 100%;
-text-align: center;
+.prompt:disabled {
+    opacity: 0.6;
 }
 
-#chat {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* =========================
+   ANIMATIONS
+   ========================= */
 
-    width: min(700px, 90vw);
-    max-width: 700px;
-
-    margin: 0 auto;
-    padding: 20px;
-    box-sizing: border-box;
-    padding-bottom: 150px;
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
 }
 
-.message {
-    color: #ffffff;
-    padding: 1rem;
-    border-radius: 16px;
-    line-height: 1.4;
-    font-size: 20px;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-
+@keyframes blink {
+    0%, 80%, 100% {
+        opacity: 0.45;
+        transform: translateY(0);
+    }
+    40% {
+        opacity: 1;
+        transform: translateY(-3px);
+    }
 }
-
-.User {
-    align-self: flex-end;
-    background-color: #008080;
-    color: #F5F5DC;
-    font-family: 'Impact', sans-serif;
-    letter-spacing: 1px;
-
-}
-
-.assistant {
-    align-self: flex-start;
-    background-color: #C1E1C1;
-    color: #3B4D3C;
-        font-family: 'Anton', sans-serif;
-}
-
 
 /* =========================
    LAPTOP
@@ -102,9 +218,7 @@ text-align: center;
    ========================= */
 
 @media (max-width: 1600px) {
-
-    h1 {
-        margin-top: 7rem;
+    .brand h1 {
         font-size: 3rem;
     }
 
@@ -117,21 +231,18 @@ text-align: center;
     }
 }
 
-
 /* =========================
    TABLET / SMALL LAPTOP
    769px - 1100px
    ========================= */
 
 @media (max-width: 1100px) {
-
     body {
-        background-position: left center;
-        background-size: 45%;
+        background-position: left center, left center;
+        background-size: cover, 48%;
     }
 
-    h1 {
-        margin-top: 5rem;
+    .brand h1 {
         font-size: 2.7rem;
     }
 
@@ -151,24 +262,35 @@ text-align: center;
     }
 }
 
-
 /* =========================
    MOBILE
    481px - 768px
    ========================= */
 
 @media (max-width: 768px) {
-
     body {
-        background-position: center top;
-        background-size: 60%;
+        background-position: left top, left top;
+        background-size: cover, 58%;
         background-attachment: scroll;
     }
 
-    h1 {
-        margin-top: 3rem;
+    .brand {
         padding: 0 1rem;
+    }
+
+    .brand-logo {
+        width: 68px;
+        height: 68px;
+        border-radius: 22px;
+    }
+
+    .brand h1 {
         font-size: 2.2rem;
+    }
+
+    .about-link {
+        top: 1rem;
+        right: 1rem;
     }
 
     .prompt {
@@ -193,23 +315,19 @@ text-align: center;
     }
 }
 
-
 /* =========================
    SMALL PHONES
    320px - 480px
    ========================= */
 
 @media (max-width: 480px) {
-
     body {
-        background-position: center top;
-        background-size: 75%;
+        background-position: left top, left top;
+        background-size: cover, 72%;
     }
 
-    h1 {
-        margin-top: 2rem;
-        padding: 0 0.75rem;
-        font-size: 1.8rem;
+    .brand h1 {
+        font-size: 1.9rem;
     }
 
     .prompt {
@@ -233,16 +351,13 @@ text-align: center;
     }
 }
 
-
 /* =========================
    VERY SMALL PHONES
    ========================= */
 
 @media (max-width: 360px) {
-
-    h1 {
+    .brand h1 {
         font-size: 1.5rem;
-        margin-top: 1.5rem;
     }
 
     .prompt {
@@ -252,10 +367,5 @@ text-align: center;
 
     #chat {
         padding: 5px;
-    }
-
-    .message {
-        max-width: 94%;
-        font-size: 0.9rem;
     }
 }

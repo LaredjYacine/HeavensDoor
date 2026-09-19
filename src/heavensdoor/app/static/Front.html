@@ -3,33 +3,32 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
-	<title>Heavens Door </title>
-	<link rel="icon" href="/static/icon.png">
-	<link rel="stylesheet" href="/static/Front.css"">
+	<title>Heaven's Door</title>
+	<link rel="icon" type="image/png" href="/static/icon.png">
+	<link rel="stylesheet" href="/static/Front.css">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div>
-<h1>Heaven's Door</h1>
-<div id='chat'>
+	<header class="topbar">
+		<a class="about-link" href="/about">About</a>
+		<div class="brand">
+			<img class="brand-logo" src="/static/icon.png" alt="Heaven's Door logo">
+			<h1>Heaven's Door</h1>
+		</div>
+	</header>
 
-</div>
-<div class="user_prompt">
-    <form id="myform">
+	<main id="chat" aria-live="polite"></main>
 
-    <textarea class='prompt' type="text" id="prompt"  placeholder="Chat with Heaven"></textarea>
-    </form>
-</div>
-</div>
+	<div class="user_prompt">
+		<form id="myform">
+			<textarea class="prompt" type="text" id="prompt" placeholder="Chat with Heaven"></textarea>
+		</form>
+	</div>
 
-
-
-
-
-<script >window.BACKEND_URL = "__BACKEND_URL__";</script>
- <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+	<script>window.BACKEND_URL = "__BACKEND_URL__";</script>
+	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 	<script src="/static/script.js"></script>
 </body>
 </html>

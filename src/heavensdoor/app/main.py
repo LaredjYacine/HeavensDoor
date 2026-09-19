@@ -31,3 +31,9 @@ def index():
         "__BACKEND_URL__",
         backend_url
     )
+
+
+@app.get("/about", response_class=HTMLResponse)
+def about():
+    with open("src/heavensdoor/app/static/About.html", "r") as f:
+        return f.read()

@@ -1,0 +1,286 @@
+/* =========================
+   HEAVEN'S DOOR — ABOUT PAGE
+   ========================= */
+
+.about-page {
+    font-size: 16px;
+}
+
+.back-link {
+    position: fixed;
+    top: 1.4rem;
+    left: 1.6rem;
+    z-index: 10;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    color: #FFF68F;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 246, 143, 0.45);
+    border-radius: 4px;
+    background: rgba(26, 26, 26, 0.55);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.back-link:hover {
+    background-color: #FFF68F;
+    color: #1A1A1A;
+}
+
+.about-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.1rem;
+    text-align: center;
+    padding: clamp(3.5rem, 9vh, 6rem) 1rem 1rem;
+}
+
+.about-logo {
+    width: 76px;
+    height: 76px;
+    border-radius: 12px;
+}
+
+.about-hero h1 {
+    font-family: 'Anton', Impact, sans-serif;
+    font-weight: 400;
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    letter-spacing: 0.05em;
+    margin: 0;
+    background: linear-gradient(100deg, #fff68f 5%, #f6c453 55%, #e8a33d 95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 6px 26px rgba(240, 180, 41, 0.35));
+}
+
+.about-sub {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #9d97b4;
+}
+
+.about-main {
+    width: min(820px, 92vw);
+    margin: 2rem auto 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+}
+
+/* =========================
+   CARDS
+   ========================= */
+
+.card {
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 1.6rem 1.8rem;
+}
+
+.card h2 {
+    font-family: 'Anton', Impact, sans-serif;
+    font-weight: 400;
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    color: #fff68f;
+    margin: 0 0 0.9rem;
+}
+
+.card p {
+    margin: 0;
+    line-height: 1.65;
+    color: #eae6f2;
+}
+
+.card strong {
+    color: #fff68f;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem;
+    margin-top: 0.3rem;
+}
+
+.tile {
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 1.15rem 1.25rem;
+}
+
+.tile h3 {
+    font-family: 'Anton', Impact, sans-serif;
+    font-weight: 400;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    color: #f6c453;
+    margin: 0 0 0.45rem;
+}
+
+.tile p {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #cfcadf;
+}
+
+/* =========================
+   EXAMPLES & STEPS
+   ========================= */
+
+.examples {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.examples code {
+    display: block;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffe9a8;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.note {
+    margin-top: 0.9rem;
+    font-size: 0.85rem;
+    color: #9d97b4;
+}
+
+.steps {
+    margin: 0;
+    padding-left: 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.steps li {
+    line-height: 1.6;
+    color: #eae6f2;
+}
+
+.steps code {
+    background: rgba(0, 0, 0, 0.4);
+    color: #ffe9a8;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.85em;
+    padding: 0.15em 0.4em;
+    border-radius: 6px;
+}
+
+/* =========================
+   TABLE & API
+   ========================= */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+th,
+td {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 0.55rem 0.8rem;
+    text-align: left;
+}
+
+th {
+    background: rgba(124, 92, 255, 0.16);
+    color: #fff68f;
+    font-weight: 600;
+}
+
+td {
+    color: #eae6f2;
+}
+
+.card pre {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    margin: 0 0 0.8rem;
+    overflow-x: auto;
+    color: #c9f2ff;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+/* =========================
+   CTA
+   ========================= */
+
+.cta {
+    text-align: center;
+    background: rgba(124, 92, 255, 0.12);
+    border-color: rgba(124, 92, 255, 0.4);
+}
+
+.cta-btn {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #FFF68F;
+    text-decoration: none;
+    border: 1px solid #FFF68F;
+    padding: 0.85rem 2rem;
+    border-radius: 4px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.cta-btn:hover {
+    background-color: #FFF68F;
+    color: #1A1A1A;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 768px) {
+    .back-link {
+        top: 1rem;
+        left: 1rem;
+        font-size: 0.78rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .card {
+        padding: 1.2rem 1.2rem;
+    }
+
+    .about-hero {
+        padding-top: 5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .examples code {
+        white-space: normal;
+    }
+}
