@@ -10,7 +10,7 @@ promptInput.addEventListener('keydown', function(event) {
 
 let query = '';
 let Lock = false;
-
+let Change_css=false;
 const url = window.BACKEND_URL;
 form.addEventListener('submit', async function (event) {
     event.preventDefault();
@@ -37,6 +37,20 @@ form.addEventListener('submit', async function (event) {
 
       await  addAssistantMessageAnimated(cleanedText);
     }
+    const element = document.querySelector('.user_prompt');
+
+    // Apply the block of styles
+    element.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        justify-content: center;
+        z-index: 1000;
+    `;
+
+    element.style.textAlign = '';
     Lock = false;
     promptInput.disabled = false;
     promptInput.placeholder = 'Chat with heaven';

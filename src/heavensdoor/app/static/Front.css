@@ -8,10 +8,10 @@ body {
 
 body {
     background-color: #1A1A1A;
-    background-image: url('wallhaven-p8wo7p.jpg');
+    background-image: url('ChatGPT_Image_Sep_18__2026__06_42_06_PM-removebg-preview.png');
     background-repeat: no-repeat;
     background-position: left center;
-    background-size:cover;
+    background-size:contain;
     background-attachment: fixed;
 }
 
@@ -50,16 +50,8 @@ h1 {
 }
 
 .user_prompt {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-
     width: 100%;
-    display: flex;
-    justify-content: center;
-
-    z-index: 1000;
+text-align: center;
 }
 
 #chat {
