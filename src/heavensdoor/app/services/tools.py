@@ -3,6 +3,7 @@ from .credentials import supabase_key, supabase_url, supabase_client
 from .Search_function import hybridSearch
 from .credentials import hf_token
 from .SSL_fix import Finetuned
+from typing import Optional
 
 @tool
 def HybridRag(query: str) -> str:
@@ -38,18 +39,21 @@ def matching_candidates(query: str) -> str:
         return f"Error: {str(e)}"
 
 @tool
-def matching_jobs(query: str) -> str:
+def matching_jobs(query: str, job_type: Optional[str] = None) -> str:
     """Use this ONLY when the user explicitly names a specific job title or role
         (e.g., "Software Engineer", "Data Scientist", "Product Manager").
         This performs an exact/keyword search by job title.
 
         Args:
             query: The precise job title name extracted from the user prompt (e.g., "software engineer").
+            job_type: The type of job to filter by (e.g., "full-time", "part-time").
         """
     try:
-        response = supabase_client.table("Jobs").select("job_name,skill_requirement,work_type, role ,company").ilike("job_name", f"%{query}%").execute()
+        if job_type is  None :
+            response = supabase_client.table("Jobs").select("job_name,skill_requirement,work_type, role ,company").ilike("job_name", f"%{query}%").execute()
+        else:
+            response = supabase_client.table("Jobs").select("job_name,skill_requirement,work_type, role ,company").ilike("job_name", f"%{query}%").ilike("work_type", f"%{job_type}%").execute()
 
-        # FIX: Check response.data, not the response object itself
         if response.data:
             return str(response.data)
         return "No jobs found matching that title."
