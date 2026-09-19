@@ -1,6 +1,13 @@
 const form = document.getElementById('myform');
 const promptInput = document.getElementById('prompt');
 
+promptInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+    }
+});
+
 let query = '';
 let Lock = false;
 
