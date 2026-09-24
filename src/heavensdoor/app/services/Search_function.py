@@ -5,8 +5,8 @@ from .credentials import supabase_client
 
 def rag_function(query_vector: str):
     embedded_query = next(
-                iter(TextEmbedding(model="BAAI/bge-small-en-v1.5").embed([query_vector]))
-            )
+        iter(TextEmbedding(model="BAAI/bge-small-en-v1.5").embed([query_vector]))
+    )
 
     vector_threshold = 0.50
     match_count = 5

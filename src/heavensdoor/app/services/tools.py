@@ -40,7 +40,7 @@ def matching_candidates(query: str) -> str:
         if response.data:
             return str(response.data)
         return "No candidates found matching that role."
-    except Exception as e: # noqa: BLE001
+    except Exception as e:  # noqa: BLE001
         print("Error occurred on matching_candidates tool:", str(e))
         return f"Error: {e!s}"
 
@@ -91,7 +91,7 @@ def get_tables(query: str = "") -> str:
         result = supabase_client.rpc("get_tables").execute()
         # FIX: Return result.data as a string
         return str(result.data)
-    except Exception as e:# noqa: BLE001
+    except Exception as e:  # noqa: BLE001
         print("Error occurred on get_tables tool:", str(e))
         return f"Error: {e!s}"
 
@@ -109,7 +109,7 @@ def table_schema(table_name: str) -> str:
         ).execute()
         # FIX: Return result.data as a string
         return str(result.data)
-    except Exception as e:# noqa: BLE001
+    except Exception as e:  # noqa: BLE001
         print("Error occurred on table_schema tool:", str(e))
         return f"Error: {e!s}"
 
