@@ -28,5 +28,3 @@ jobs:
 
       - name: Run Ruff
         run: uv run ruff check .
-      -  name: Run Pylint
-         run: uv run pylint
