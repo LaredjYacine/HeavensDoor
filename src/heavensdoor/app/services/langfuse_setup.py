@@ -8,6 +8,8 @@ dotenv.load_dotenv()
 LANGFUSE_ENABLED = bool(
     os.getenv("LANGFUSE_PUBLIC_KEY") and os.getenv("LANGFUSE_SECRET_KEY")
 )
+if not LANGFUSE_ENABLED:
+    print("Langfuse is not configured.")
 
 
 @contextlib.contextmanager
