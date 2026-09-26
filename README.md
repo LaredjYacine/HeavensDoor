@@ -60,6 +60,7 @@ User polls FastAPI (/result) → Redis (job status/result cache) → Response
 | Task Queue         | Celery |
 | Cache / Broker     | Redis (Upstash) |
 | Fallback Model     | Gradio Client (hosted fine-tuned model) |
+| Observability      | Langfuse (traces, generations, tool calls) |
 | Retry Logic        | Tenacity |
 | Package Manager    | uv |
 
@@ -85,6 +86,7 @@ HeavensDoor/
 │       │   ├── agent_models.py         # LLM + graph node/state definitions
 │       │   ├── celery.py               # Celery app configuration
 │       │   ├── credentials.py          # Env var / client loading
+│       │   ├── langfuse_setup.py       # Langfuse trace context helper
 │       │   ├── limiter.py              # Rate limiter configuration
 │       │   └── tools.py                # LangChain tool definitions for the agent
 │       └── static/
@@ -130,9 +132,16 @@ hf_token=your_huggingface_token
 redisurl=your_redis_connection_url
 UPSTASH_REDIS_REST_URL=your_upstash_rest_url
 UPSTASH_REDIS_REST_TOKEN=your_upstash_rest_token
+
+# Observability (optional - Langfuse tracing)
+LANGFUSE_PUBLIC_KEY=pk-lf-...
+LANGFUSE_SECRET_KEY=sk-lf-...
+LANGFUSE_BASE_URL=https://cloud.langfuse.com
 ```
 
 > `upstash_redis`'s `Redis.from_env()` reads `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` specifically — make sure those are set in addition to `redisurl`.
+
+> Tracing is skipped entirely when `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` are missing, so the app runs fine without a Langfuse project.
 
 ---
 

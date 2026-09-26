@@ -18,6 +18,7 @@ from upstash_redis import Redis
 
 from ..services.agent import llm
 from ..services.celery import celery_app
+from ..services.langfuse_setup import start_agent_trace
 from ..services.Logger import JsonLlmLogger
 from ..services.SSL_fix import Finetuned
 
@@ -41,11 +42,28 @@ def streaming(messages):
 )
 def run_agent_safely(
     payload,
+    session_id=None,
+    user_id=None,
 ):
-    return llm.invoke(
-        {"messages": payload},  # type: ignore
-        config={"recursion_limit": 15, "callbacks": [JsonLlmLogger()]},
-    )  # type: ignore
+    query = payload[-1].content if payload else None
+    with start_agent_trace(
+        session_id=session_id,
+        user_id=user_id,
+        tags=["agent", "langgraph", "groq"],
+        query=query,
+    ) as trace:
+        callbacks = [JsonLlmLogger()]
+        if trace["handler"] is not None:
+            callbacks.insert(0, trace["handler"])
+        result = llm.invoke(
+            {"messages": payload},  # type: ignore
+            config={"recursion_limit": 15, "callbacks": callbacks},  # type: ignore
+        )  # type: ignore
+        if trace["span"] is not None:
+            last = result["messages"][-1]
+            output = last.content if hasattr(last, "content") else str(last)
+            trace["span"].update(output={"response": output})
+        return result
 
 
 @celery_app.task(name="agent", bind=True, max_retries=3, default_retry_delay=1)
@@ -57,7 +75,7 @@ def agent(self, query: str):
                 status_code=status.HTTP_400_BAD_REQUEST, detail="query must not be None"
             )
         try:
-            result = run_agent_safely(message)
+            result = run_agent_safely(message, session_id=self.request.id)
             output = [
                 pprint.pformat(output.content, indent=2, width=40)
                 for output in reversed(result["messages"])
