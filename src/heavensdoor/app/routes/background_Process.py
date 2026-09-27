@@ -59,13 +59,12 @@ def run_agent_safely(
             callbacks.insert(0, trace["handler"])
         result = llm.invoke(
             {"messages": payload},  # type: ignore
-            config={  "configurable": {"thread_id": user_session_id},
-            "recursion_limit": 15,
-            "callbacks": callbacks},  # type: ignore
+            config={
+                "configurable": {"thread_id": user_session_id},
+                "recursion_limit": 15,
+                "callbacks": callbacks,
+            },  # type: ignore
         )  # type: ignore
-
-
-
 
         if trace["span"] is not None:
             last = result["messages"][-1]
@@ -77,7 +76,7 @@ def run_agent_safely(
 @celery_app.task(name="agent", bind=True, max_retries=3, default_retry_delay=1)
 def agent(self, session_id: str, query: str):
     try:
-        if query  is None:
+        if query is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="query must not be None"
             )

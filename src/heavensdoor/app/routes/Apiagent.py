@@ -18,7 +18,10 @@ route = APIRouter()
 @route.post("/agent")
 @limiter.limit("1000/minute")
 def agent(
-    request: Request, query: str, idempotency_id: str | None = None, session_id: str | None = None
+    request: Request,
+    query: str,
+    idempotency_id: str | None = None,
+    session_id: str | None = None,
 ):  # , response_class=EventSourceResponse):
     try:
         if idempotency_id is None:
@@ -35,7 +38,7 @@ def agent(
                 "idempotency_id": idempotency_id,
                 "message": "Job already submitted before",
             }
-        task = celery_app.send_task("agent", args=[session_id,query])
+        task = celery_app.send_task("agent", args=[session_id, query])
         client.set(f"idem_id : {idempotency_id}", task.id, ex=86400)
         return {
             "job_id": task.id,
