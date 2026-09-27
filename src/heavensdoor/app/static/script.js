@@ -3,7 +3,11 @@ const promptInput = document.getElementById('prompt');
 
 const url = window.BACKEND_URL;
 let Lock = false;
-
+let sessionId = localStorage.getItem("chat_session_id");
+if (!sessionId) {
+    sessionId = crypto.randomUUID(); // Generate a unique session ID
+    localStorage.setItem("chat_session_id", sessionId);
+}
 promptInput.addEventListener('keydown', function (event) {
     if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
@@ -30,7 +34,7 @@ form.addEventListener('submit', async function (event) {
     addTypingIndicator();
     scrollToBottom();
 
-    const Id = await postprompt(query);
+    const Id = await postprompt(query, null, sessionId);
     promptInput.value = '';
     promptInput.style.height = 'auto';
 
@@ -202,12 +206,12 @@ async function getResult(Id) {
     }
 }
 
-async function postprompt(text, idempotency) {
+async function postprompt(text, idempotency, sessionId) {
     try {
         const idempotencyId = idempotency
             || (crypto.randomUUID && crypto.randomUUID())
             || ('id-' + Date.now() + '-' + Math.random().toString(36).slice(2));
-        const body = `?query=${encodeURIComponent(text)}&idempotency_id=${encodeURIComponent(idempotencyId)}`;
+        const body = `?query=${encodeURIComponent(text)}&idempotency_id=${encodeURIComponent(idempotencyId)}&session_id=${sessionId}`;
 
         const response = await fetch(
             `${url}/agent${body}`,

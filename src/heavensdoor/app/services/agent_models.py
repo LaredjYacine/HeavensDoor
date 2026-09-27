@@ -2,7 +2,7 @@ import operator
 from typing import Annotated, Literal, TypedDict
 
 import truststore
-from langchain.messages import AnyMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain.messages import AnyMessage, SystemMessage, ToolMessage
 from langchain_groq import ChatGroq
 from langgraph.graph import END
 
@@ -25,7 +25,6 @@ if hf_token is None:
 chat_model = ChatGroq(model="qwen/qwen3.8-27b", temperature=0.7)
 
 # chat_model = ChatHuggingFace(llm=model)
-messages = [HumanMessage(content="Explain quantum computing in one simple sentence.")]
 tools_by_name = {tool.name: tool for tool in tools}
 model_with_tools = chat_model.bind_tools(tools)
 
@@ -47,7 +46,9 @@ def llm_calls(state: dict):
                 [
                     SystemMessage(
                         content=(
-                            """ you are an assistant your task is to Help the user To either find a candidate or a job,  Your must give a General summary to  the output to fit the users request """
+                            """ you are an assistant your task is to Help the user To either find a candidate or a job,
+                            Your must give a General summary to  the output to fit the users request
+                             """
                         )
                     )
                 ]
