@@ -2,7 +2,7 @@ import operator
 from typing import Annotated, Literal, TypedDict
 
 import truststore
-from langchain.messages import AnyMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain.messages import AnyMessage, SystemMessage, ToolMessage
 from langchain_groq import ChatGroq
 from langgraph.graph import END
 
