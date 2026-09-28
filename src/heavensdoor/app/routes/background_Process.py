@@ -5,7 +5,7 @@ import time
 import httpx
 from celery.exceptions import MaxRetriesExceededError
 from fastapi import HTTPException, status
-from huggingface_hub.errors import BadRequestError
+from huggingface_hub.errors import BadRequestError, HfHubHTTPError
 from langchain.messages import HumanMessage
 from langgraph.errors import GraphRecursionError
 from tenacity import (
@@ -23,6 +23,10 @@ from ..services.Logger import JsonLlmLogger
 from ..services.SSL_fix import Finetuned
 
 client = Redis.from_env()
+
+
+class FallbackModelUnavailableError(RuntimeError):
+    """The hosted fine-tuned fallback model could not be reached or loaded."""
 
 
 def streaming(messages):
@@ -91,8 +95,18 @@ def agent(self, session_id: str, query: str):
             return output
 
         except GraphRecursionError:
-            result = Finetuned.predict(user_text=query, api_name="/predict")
-            return result
+            try:
+                if Finetuned is None:
+                    raise FallbackModelUnavailableError(
+                        "Failed to get fine-tuned model"
+                    )
+                return Finetuned.predict(user_text=query, api_name="/predict")
+            except (
+                FallbackModelUnavailableError,
+                httpx.HTTPError,
+                HfHubHTTPError,
+            ) as e:
+                return str(e)
 
     except Exception as e:  # noqa: BLE001
         error = str(e).lower()

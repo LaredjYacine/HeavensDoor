@@ -23,6 +23,7 @@ dependencies = [
     "langfuse>=4.15.6",
     "langgraph>=1.2.11",
     "pandas>=3.0.5",
+    "pre-commit>=4.6.2",
     "python-certifi-win32>=1.6.1",
     "redis>=8.1.0",
     "slowapi>=0.1.10",
