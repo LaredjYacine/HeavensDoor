@@ -91,8 +91,14 @@ def agent(self, session_id: str, query: str):
             return output
 
         except GraphRecursionError:
-            result = Finetuned.predict(user_text=query, api_name="/predict")
-            return result
+            try  :
+
+                if Finetuned is None:
+                    raise Exception("Failed to get fine-tuned model")
+                result = Finetuned.predict(user_text=query, api_name="/predict")
+                return result
+            except Exception as e:
+                return 'i cannot help you with this '
 
     except Exception as e:  # noqa: BLE001
         error = str(e).lower()
