@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# RAG eval artifacts
+# tests/eval_baseline.json IS committed on purpose: it is the reference the
+# >5% regression gate compares against. Only the per-run report is ignored.
+tests/eval_results.json

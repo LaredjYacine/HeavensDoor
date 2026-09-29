@@ -1,0 +1,152 @@
+[
+  {
+    "id": "gt-01",
+    "input": "Tell me about the C# Software Engineer role at E Tech Group.",
+    "expected_output": "The C# Software Engineer role is at E Tech Group in West Chester, OH. It is an Associate-level, fully remote position requiring C#, .NET, WPF, ASP.NET MVC, WebAPI, C++, Programmable Logic Controllers and SQL Server. E Tech Group provides IT automation and control solutions for the Life Sciences, Mission Critical, Metals, Material Handling, Consumer Products and Food & Beverage industries."
+  },
+  {
+    "id": "gt-02",
+    "input": "What does the Software Implementation Engineer at Kardex actually do?",
+    "expected_output": "The Software Implementation Engineer at Kardex is an Associate-level, remote role based in Cincinnati, OH. The engineer tests, trains and deploys the Kardex FulfillX software platform for customers, tests the IT hardware and software, and delivers customer training and post-handover support. The work involves warehouse operations, AutoStore, client host systems and integration engineering, with some travel."
+  },
+  {
+    "id": "gt-03",
+    "input": "Which jobs are fully remote?",
+    "expected_output": "Two jobs are fully remote. The C# Software Engineer at E Tech Group in West Chester, OH, and the Software Implementation Engineer at Kardex in Cincinnati, OH. Both are Associate-level roles."
+  },
+  {
+    "id": "gt-04",
+    "input": "List the hybrid positions.",
+    "expected_output": "Four positions are hybrid, and all four are Associate-level: the Java Software Engineer at Gamma Technologies in Westmont, IL; the Software Quality Engineer II and the Android Software Engineer II at Life Fitness in Franklin Park, IL; and the BAS Software Engineer at Carrier in Lisle, IL."
+  },
+  {
+    "id": "gt-05",
+    "input": "How many onsite jobs are there and where are they?",
+    "expected_output": "There are 14 onsite jobs. Six are in Chattanooga, TN, four are in Las Cruces, NM, and one each is in Pittsburgh, PA, Burr Ridge, IL, Joliet, IL and Naperville, IL."
+  },
+  {
+    "id": "gt-06",
+    "input": "What Associate-level jobs are available?",
+    "expected_output": "Six jobs are Associate-level: the C# Software Engineer at E Tech Group in West Chester, OH; the Software Implementation Engineer at Kardex in Cincinnati, OH; the Java Software Engineer at Gamma Technologies in Westmont, IL; the Software Quality Engineer II and the Android Software Engineer II at Life Fitness in Franklin Park, IL; and the BAS Software Engineer at Carrier in Lisle, IL. The first two are remote and the remaining four are hybrid."
+  },
+  {
+    "id": "gt-07",
+    "input": "How many Mid senior positions are in the dataset?",
+    "expected_output": "There are 14 Mid senior positions. Six are in Chattanooga, TN, four are in Las Cruces, NM, and one each is in Burr Ridge, IL, Joliet, IL, Naperville, IL and Pittsburgh, PA."
+  },
+  {
+    "id": "gt-08",
+    "input": "What jobs are available in Chattanooga, Tennessee?",
+    "expected_output": "Six jobs are in Chattanooga, TN, all onsite and Mid senior: Senior Software Engineer, Back End (Go, AWS, Java); Senior Manager, Software Engineering, Full Stack; Lead Software Engineer, Full Stack (JavaScript/Java/AWS); and Lead Software Engineer, Full Stack (Java, Python, Angular, React) at Jobs for Humanity; the Sr. Software Engineer at BlueCross BlueShield of Tennessee; and a Lead Software Engineer, Full Stack (Java, Python, Angular, React) at ClickJobs.io."
+  },
+  {
+    "id": "gt-09",
+    "input": "Which companies are hiring in Las Cruces, New Mexico?",
+    "expected_output": "Four companies are hiring in Las Cruces, NM, each for a Mid senior, onsite Senior Software Engineer role: FDS Avionics Corp., ArgonFDS, Leidos and ClearanceJobs. The ClearanceJobs posting is for a Senior Software Engineer with Security Clearance."
+  },
+  {
+    "id": "gt-10",
+    "input": "Jobs for Humanity seems to post a lot of roles. How many do they have?",
+    "expected_output": "Jobs for Humanity has 6 jobs, all onsite and Mid senior. Four are in Chattanooga, TN: Senior Software Engineer, Back End (Go, AWS, Java); Senior Manager, Software Engineering, Full Stack; Lead Software Engineer, Full Stack (JavaScript/Java/AWS); and Lead Software Engineer, Full Stack (Java, Python, Angular, React). The other two are Senior Software Engineer, Back End roles in Joliet, IL and Naperville, IL."
+  },
+  {
+    "id": "gt-11",
+    "input": "Which jobs require React?",
+    "expected_output": "Two jobs require React, both Lead Software Engineer, Full Stack (Java, Python, Angular, React) roles that are onsite and Mid senior in Chattanooga, TN: one at Jobs for Humanity and one at ClickJobs.io. Both also require Java, Python, Angular, JavaScript and AWS."
+  },
+  {
+    "id": "gt-12",
+    "input": "Which jobs list Go as a required skill?",
+    "expected_output": "Five jobs list Go, all onsite and Mid senior: Senior Software Engineer, Back End (Go, AWS, Java) and Senior Manager, Software Engineering, Full Stack at Jobs for Humanity in Chattanooga, TN; Lead Software Engineer, Full Stack (Java, Python, Angular, React) at ClickJobs.io in Chattanooga, TN; and Senior Software Engineer, Back End at Jobs for Humanity in Joliet, IL and in Naperville, IL. All five also require Java, Python and SQL."
+  },
+  {
+    "id": "gt-13",
+    "input": "Which openings require Kubernetes?",
+    "expected_output": "Six openings require Kubernetes: Lead Software Engineer, Full Stack (JavaScript/Java/AWS) at Jobs for Humanity in Chattanooga, TN; Lead Software Engineer, Full Stack (Java, Python, Angular, React) at ClickJobs.io in Chattanooga, TN; Senior Software Engineer at Leidos and Senior Software Engineer with Security Clearance at ClearanceJobs, both in Las Cruces, NM; the Java Software Engineer at Gamma Technologies in Westmont, IL; and Senior Software Engineer, Back End at Jobs for Humanity in Naperville, IL. All six also require Docker."
+  },
+  {
+    "id": "gt-14",
+    "input": "I know C#. What can I apply for?",
+    "expected_output": "Two jobs list C#: the C# Software Engineer at E Tech Group in West Chester, OH, which is an Associate-level remote role focused on .NET, WPF, ASP.NET MVC and WebAPI; and the Software Quality Engineer II at Life Fitness in Franklin Park, IL, which is an Associate-level hybrid role covering Selenium, API testing, Java, Python and SQL."
+  },
+  {
+    "id": "gt-15",
+    "input": "Which positions need Angular?",
+    "expected_output": "Four positions need Angular: Lead Software Engineer, Full Stack (JavaScript/Java/AWS) at Jobs for Humanity in Chattanooga, TN; Lead Software Engineer, Full Stack (Java, Python, Angular, React) at Jobs for Humanity in Chattanooga, TN; the same title at ClickJobs.io in Chattanooga, TN; and the Java Software Engineer at Gamma Technologies in Westmont, IL."
+  },
+  {
+    "id": "gt-16",
+    "input": "I am an FPGA engineer. What do you have for me?",
+    "expected_output": "The Senior Software Engineer role at ArgonFDS in Las Cruces, NM is the match. It is an onsite, Mid senior position requiring FPGA, along with Linux, U-Boot, low level drivers, board support packages, Stratix 10, Ultra Scale Plus, Arria 10, ARM processors, 10GbE and ruggedized airborne recorders."
+  },
+  {
+    "id": "gt-17",
+    "input": "Do you have any embedded roles that mention MATLAB?",
+    "expected_output": "There is one: Model Based Software Developer for Tractor Transmission at Pi Square Technologies in Burr Ridge, IL. It is an onsite, Mid senior role covering the C language, MATLAB, target link code generator, CAN and the J1939 standard, MIL and SIL testing, real-time operating systems, device drivers and embedded systems for off-highway equipment."
+  },
+  {
+    "id": "gt-18",
+    "input": "I am a Building Automation engineer, not a web developer. Anything for me?",
+    "expected_output": "The BAS Software Engineer at Carrier in Lisle, IL is the match. It is a hybrid, Associate-level role requiring Building Automation, HVAC, Modbus, SNMP, LON and N2 protocols, along with Windows, Outlook, Word and Excel."
+  },
+  {
+    "id": "gt-19",
+    "input": "Which jobs require Scala?",
+    "expected_output": "Three jobs require Scala, all Senior Software Engineer, Back End roles at Jobs for Humanity that are onsite and Mid senior: the Chattanooga, TN posting titled Senior Software Engineer, Back End (Go, AWS, Java), the Joliet, IL posting, and the Naperville, IL posting. All three also require Java, Python, SQL, Go and Node."
+  },
+  {
+    "id": "gt-20",
+    "input": "I have signals intelligence experience and an active security clearance. What matches?",
+    "expected_output": "Two Las Cruces, NM roles match, both onsite and Mid senior: the Senior Software Engineer at Leidos and the Senior Software Engineer with Security Clearance at ClearanceJobs. Both require COMINT, ELINT and FISINT signal processing, Docker, Kubernetes, Jenkins, AWS, Azure, PKI management, Security+ certification and Python, Perl and Bash. The Leidos role explicitly requires a TS Security Clearance and CI Polygraph."
+  },
+  {
+    "id": "gt-21",
+    "input": "I build Android apps in Kotlin. Any openings?",
+    "expected_output": "The Android Software Engineer II at Life Fitness in Franklin Park, IL is the match. It is a hybrid, Associate-level role requiring Android development, Java/Kotlin, software design patterns, data structures, algorithms, Linux OS, Firebase Crashlytics and real-time databases."
+  },
+  {
+    "id": "gt-22",
+    "input": "Any roles working with Kafka or stream processing?",
+    "expected_output": "There is one: Senior Software Engineer, Back End (Go, AWS, Java) at Jobs for Humanity in Chattanooga, TN. It is an onsite, Mid senior role requiring Kafka, stream processing, Go, Scala, Java, Python, SQL, Node.js, AWS, GCP and Azure."
+  },
+  {
+    "id": "gt-23",
+    "input": "I am an Associate-level candidate with Java experience. What should I look at?",
+    "expected_output": "Three hybrid, Associate-level jobs require Java: the Java Software Engineer at Gamma Technologies in Westmont, IL, a back-end role using Spring Boot, JUnit, Gradle, Maven, PostgreSQL, MongoDB, AWS, Azure, Docker and Kubernetes; the Software Quality Engineer II at Life Fitness in Franklin Park, IL, which uses Java alongside Selenium and API testing; and the Android Software Engineer II at Life Fitness in Franklin Park, IL, which uses Java/Kotlin."
+  },
+  {
+    "id": "gt-24",
+    "input": "I want a hybrid role where I would get cloud experience with AWS or Azure. Any?",
+    "expected_output": "There is one: the Java Software Engineer at Gamma Technologies in Westmont, IL. It is a hybrid, Associate-level role requiring AWS, Azure, Docker, Kubernetes, Spring Boot, PostgreSQL and MongoDB."
+  },
+  {
+    "id": "gt-25",
+    "input": "How many jobs do you have in total, and can you break them down?",
+    "expected_output": "There are 20 jobs in total. By work type there are 2 remote, 4 hybrid and 14 onsite. By level there are 6 Associate and 14 Mid senior. They come from 14 different companies across 11 locations in Ohio, Tennessee, New Mexico, Illinois and Pennsylvania."
+  },
+  {
+    "id": "gt-26",
+    "input": "How many different companies are hiring, and can you name them?",
+    "expected_output": "14 companies are hiring: ArgonFDS, BlueCross BlueShield of Tennessee, Carrier, ClearanceJobs, ClickJobs.io, E Tech Group, FDS Avionics Corp., Gamma Technologies, Jobs for Humanity, Kardex, Leidos, Life Fitness, Pi Square Technologies and rideOS (acquired by Gopuff)."
+  },
+  {
+    "id": "gt-27",
+    "input": "I see two jobs titled Lead Software Engineer, Full Stack (Java, Python, Angular, React). Are they the same posting?",
+    "expected_output": "No, they are two separate postings that share an identical title. Both are onsite, Mid senior roles in Chattanooga, TN requiring Java, Python, Angular, React, JavaScript, AWS, cloud computing and Agile practices, and both carry the same Jobs for Humanity company description. One is credited to Jobs for Humanity and the other to ClickJobs.io, whose text describes a Capital One role based in Chicago."
+  },
+  {
+    "id": "gt-28",
+    "input": "What is actually different between the Leidos Senior Software Engineer and the ClearanceJobs Senior Software Engineer in Las Cruces?",
+    "expected_output": "Both are onsite, Mid senior roles in Las Cruces, NM from the same Integrated Solutions Division, working on lab software for software-intensive systems and signal processing, and requiring COMINT, ELINT and FISINT, Docker, Kubernetes, Jenkins, and Python, Perl and Bash. The differences are the posting identity and the security requirements: the ClearanceJobs role is titled Senior Software Engineer with Security Clearance and carries requisition R-00123572, while the Leidos posting explicitly requires a TS Security Clearance and CI Polygraph."
+  },
+  {
+    "id": "gt-29",
+    "input": "Do you have any Rust developer positions, or anything based in New York?",
+    "expected_output": "No. None of the 20 jobs list Rust as a skill; the back-end languages offered are Go, Java, Python, Scala, Node.js and TypeScript. No job is located in New York. The locations covered are West Chester and Cincinnati in Ohio, Chattanooga in Tennessee, Las Cruces in New Mexico, seven locations in Illinois, and Pittsburgh in Pennsylvania."
+  },
+  {
+    "id": "gt-30",
+    "input": "What salary does the C# Software Engineer at E Tech Group pay?",
+    "expected_output": "The salary is not disclosed. The salary field is unpopulated for all 20 postings, so no pay range is available for the C# Software Engineer at E Tech Group and it would need to be confirmed with the employer. The role is Associate-level and remote."
+  }
+]

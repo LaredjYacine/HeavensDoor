@@ -9,7 +9,7 @@ def rag_function(query_vector: str):
     )
 
     vector_threshold = 0.50
-    match_count = 5
+    match_count = 2
     dataset = supabase_client.rpc(
         "cosine_similarity",
         {
@@ -22,7 +22,7 @@ def rag_function(query_vector: str):
 
 
 def bm25_function(query_vector: str):
-    match_count = 5
+    match_count = 2
     data = supabase_client.rpc(
         "search_jobs_fts", {"search_query": query_vector, "match_limit": match_count}
     ).execute()

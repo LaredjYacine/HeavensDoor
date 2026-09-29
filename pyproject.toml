@@ -11,11 +11,12 @@ dependencies = [
     "bm25s[full]>=0.3.11",
     "celery>=5.6.3",
     "certifi>=2026.7.22",
+    "deepeval==4.2.6",
     "dotenv>=0.9.9",
     "fastapi>=0.141.1",
     "fastembed>=0.8.0",
     "gradio-client>=2.7.0",
-    "huggingface-hub>=1.31.0",
+    "huggingface-hub>=1.3.0,<1.18.0",
     "langchain>=1.4.0",
     "langchain-groq>=1.1.3",
     "langchain-huggingface>=1.2.2",
@@ -26,6 +27,7 @@ dependencies = [
     "pre-commit>=4.6.2",
     "python-certifi-win32>=1.6.1",
     "redis>=8.1.0",
+    "sentence-transformers>=6.1.0",
     "slowapi>=0.1.10",
     "supabase>=2.31.0",
     "tenacity>=9.1.4",
@@ -47,6 +49,10 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+python_files = ["test_*.py", "*_test.py", "RagEval.py"]
+markers = [
+    "rag_eval: live RAG evaluation, needs network plus real credentials (RAG_EVAL=1)",
+]
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]

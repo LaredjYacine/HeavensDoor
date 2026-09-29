@@ -22,7 +22,7 @@ os.environ.setdefault("UPSTASH_REDIS_REST_URL", "https://dummy.upstash.invalid")
 os.environ.setdefault("UPSTASH_REDIS_REST_TOKEN", "test-upstash-token")
 
 # Keep Supabase client creation off the network at import time.
-import supabase
+import supabase  # noqa: E402
 
 
 class _DummySupabaseClient:
@@ -30,15 +30,49 @@ class _DummySupabaseClient:
         pass
 
 
+# Keep a handle on the real factory. The hermetic endpoint suite never needs it,
+# but the live RAG eval in test_RagEval.py queries real Supabase and has no other
+# way to reach the genuine implementation once the attribute below is replaced.
+REAL_CREATE_CLIENT = supabase.create_client
+
+
 supabase.create_client = _DummySupabaseClient
 
 # Must happen after the environment is prepared.
-from types import SimpleNamespace
+from types import SimpleNamespace  # noqa: E402
 
-import pytest
-from fastapi.testclient import TestClient
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
 
-from heavensdoor.app.routes import Apiagent
+from heavensdoor.app.routes import Apiagent  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _real_supabase_for_rag_eval(request: pytest.FixtureRequest):
+    """Give ``rag_eval`` tests the genuine Supabase client, others the dummy.
+
+    The dummy is what keeps the endpoint suite hermetic and offline, but the RAG
+    eval scores the real retriever, so a stubbed client would make its numbers
+    meaningless. Restoring is scoped to marked tests and undone afterwards, so
+    the endpoint suite still never touches the network.
+    """
+    if request.node.get_closest_marker("rag_eval") is None:
+        yield
+        return
+
+    from heavensdoor.app.services import credentials
+
+    # Patch the already-constructed client on the credentials module rather than
+    # reloading it: reloading re-runs the module-level credential validation
+    # against the dummy environment that conftest set up for the hermetic suite,
+    # which raises before it ever gets to build a client.
+    credentials.supabase_client = REAL_CREATE_CLIENT(
+        os.environ["supabase_url"], os.environ["supabase_Key"]
+    )
+    try:
+        yield
+    finally:
+        credentials.supabase_client = _DummySupabaseClient()
 
 
 class FakeRedis:
