@@ -23,6 +23,7 @@ dependencies = [
     "langchain-ollama>=1.1.0",
     "langfuse>=4.15.6",
     "langgraph>=1.2.11",
+    "openai>=3.3.0",
     "pandas>=3.0.5",
     "pre-commit>=4.6.2",
     "python-certifi-win32>=1.6.1",
