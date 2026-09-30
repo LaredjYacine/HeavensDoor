@@ -11,12 +11,12 @@ from types import SimpleNamespace
 
 import pytest
 import supabase
+from fastapi.testclient import TestClient
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 os.chdir(REPO_ROOT)
 
-# Dummy credentials — enough for the app to import without real environment.
-# Set before the app modules are imported (dotenv does not override them).
+# Dummy credentials — set before app modules are imported
 os.environ.setdefault("supabase_url", "https://supabase.invalid")
 os.environ.setdefault("supabase_Key", "test-supabase-key")
 os.environ.setdefault("groq", "test-groq-key")
@@ -25,9 +25,8 @@ os.environ.setdefault("backendurl", "http://testserver")
 os.environ.setdefault("UPSTASH_REDIS_REST_URL", "https://dummy.upstash.invalid")
 os.environ.setdefault("UPSTASH_REDIS_REST_TOKEN", "test-upstash-token")
 
+
 # Keep Supabase client creation off the network at import time.
-
-
 class _DummySupabaseClient:
     def __init__(self, *args, **kwargs):
         pass
@@ -35,9 +34,7 @@ class _DummySupabaseClient:
 
 supabase.create_client = _DummySupabaseClient
 
-# These two must be imported after initiliasing the enviornment or else we get an error in the CI
-from fastapi.testclient import TestClient  # noqa: E402
-
+# --- ONLY the app-specific import stays down here after environment setup ---
 from heavensdoor.app.routes import Apiagent  # noqa: E402
 
 
