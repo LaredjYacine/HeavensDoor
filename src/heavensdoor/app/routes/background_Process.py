@@ -108,7 +108,7 @@ def agent(self, session_id: str, query: str):
             ) as e:
                 return str(e)
 
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:  # noqa: BLE001 - process boundary: convert any failure into a DLQ recor
         error = str(e).lower()
         if " temporarily at capacity" in error or "503" in error:
             try:

@@ -7,12 +7,16 @@ external service is ever contacted — perfect for CI.
 
 import os
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+import supabase
+from fastapi.testclient import TestClient
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 os.chdir(REPO_ROOT)
 
-# Dummy credentials — enough for the app to import without real environment.
-# Set before the app modules are imported (dotenv does not override them).
+# Dummy credentials — set before app modules are imported
 os.environ.setdefault("supabase_url", "https://supabase.invalid")
 os.environ.setdefault("supabase_Key", "test-supabase-key")
 os.environ.setdefault("groq", "test-groq-key")
@@ -21,10 +25,8 @@ os.environ.setdefault("backendurl", "http://testserver")
 os.environ.setdefault("UPSTASH_REDIS_REST_URL", "https://dummy.upstash.invalid")
 os.environ.setdefault("UPSTASH_REDIS_REST_TOKEN", "test-upstash-token")
 
+
 # Keep Supabase client creation off the network at import time.
-import supabase
-
-
 class _DummySupabaseClient:
     def __init__(self, *args, **kwargs):
         pass
@@ -32,12 +34,7 @@ class _DummySupabaseClient:
 
 supabase.create_client = _DummySupabaseClient
 
-# Must happen after the environment is prepared.
-from types import SimpleNamespace
-
-import pytest
-from fastapi.testclient import TestClient
-
+# --- ONLY the app-specific import stays down here after environment setup ---
 from heavensdoor.app.routes import Apiagent
 
 
