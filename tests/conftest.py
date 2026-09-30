@@ -10,9 +10,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-from fastapi.testclient import TestClient
-
-from heavensdoor.app.routes import Apiagent
+import supabase
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 os.chdir(REPO_ROOT)
@@ -28,7 +26,6 @@ os.environ.setdefault("UPSTASH_REDIS_REST_URL", "https://dummy.upstash.invalid")
 os.environ.setdefault("UPSTASH_REDIS_REST_TOKEN", "test-upstash-token")
 
 # Keep Supabase client creation off the network at import time.
-import supabase  # noqa: E402
 
 
 class _DummySupabaseClient:
@@ -38,7 +35,10 @@ class _DummySupabaseClient:
 
 supabase.create_client = _DummySupabaseClient
 
-# Must happen after the environment is prepared.
+# These two must be imported after initiliasing the enviornment or else we get an error in the CI
+from fastapi.testclient import TestClient  # noqa: E402
+
+from heavensdoor.app.routes import Apiagent  # noqa: E402
 
 
 class FakeRedis:
