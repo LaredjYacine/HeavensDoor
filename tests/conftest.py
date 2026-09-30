@@ -10,8 +10,8 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-from fastapi.testclient import TestClient
 import supabase
+from fastapi.testclient import TestClient
 
 from heavensdoor.app.routes import Apiagent
 
