@@ -10,7 +10,6 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-import supabase
 from fastapi.testclient import TestClient
 
 from heavensdoor.app.routes import Apiagent
@@ -29,6 +28,7 @@ os.environ.setdefault("UPSTASH_REDIS_REST_URL", "https://dummy.upstash.invalid")
 os.environ.setdefault("UPSTASH_REDIS_REST_TOKEN", "test-upstash-token")
 
 # Keep Supabase client creation off the network at import time.
+import supabase  # noqa: E402
 
 
 class _DummySupabaseClient:
