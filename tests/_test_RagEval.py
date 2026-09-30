@@ -2,7 +2,6 @@ import os
 
 import dotenv
 import pytest
-
 from deepeval import evaluate
 from deepeval.dataset import EvaluationDataset
 from deepeval.metrics import AnswerRelevancyMetric, FaithfulnessMetric
