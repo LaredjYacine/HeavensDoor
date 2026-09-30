@@ -54,7 +54,8 @@ python_files = ["test_*.py", "*_test.py", "RagEval.py"]
 markers = [
     "rag_eval: live RAG evaluation, needs network plus real credentials (RAG_EVAL=1)",
 ]
-
+[tool.ruff.lint.per-file-ignores]
+"tests/conftest.py" = ["E402"]
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]
 build-backend = "uv_build"

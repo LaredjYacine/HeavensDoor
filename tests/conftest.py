@@ -35,7 +35,7 @@ class _DummySupabaseClient:
 supabase.create_client = _DummySupabaseClient
 
 # --- ONLY the app-specific import stays down here after environment setup ---
-from heavensdoor.app.routes import Apiagent  # noqa: E402
+from heavensdoor.app.routes import Apiagent
 
 
 class FakeRedis:
