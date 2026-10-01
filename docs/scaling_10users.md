@@ -2,7 +2,8 @@
 
 ## Current System
 
-[System Architecture Diagram]
+<img width="701" height="742" alt="image" src="https://github.com/user-attachments/assets/0d30cbfd-6d46-4700-9e72-2a7fc6653a71" />
+
 
 ## 10K Concurrent Users
 
