@@ -1,4 +1,5 @@
 import os
+from time import sleep
 
 import dotenv
 import pytest
@@ -26,6 +27,7 @@ dataset.add_goldens_from_json_file("tests/GoldenTestCase.json")  # bare array
 
 class GroqDeepEvalModel(DeepEvalBaseLLM):
     def __init__(self, model_name: str, api_key: str):
+
         self.model_name = model_name
         self.client = OpenAI(base_url="https://api.groq.com/openai/v1", api_key=api_key)
 
@@ -33,7 +35,7 @@ class GroqDeepEvalModel(DeepEvalBaseLLM):
         return self.client
 
     @retry(
-        wait=wait_exponential(multiplier=1, min=2, max=10),
+        wait=wait_exponential(multiplier=1, min=2, max=15),
         stop=stop_after_attempt(5),
         retry=retry_if_exception_type(RateLimitError),
         reraise=True,
@@ -80,8 +82,9 @@ def llm_response(context: str, query: str) -> str:
     return str(response.content)
 
 
-@pytest.mark.parametrize("golden", dataset.goldens[:3])
+@pytest.mark.parametrize("golden", dataset.goldens[:10])
 def test_evaluation(golden, monkeypatch):
+
     docs = hybridSearch(golden.input)
     context = [
         str(doc.get("content"))
@@ -89,12 +92,11 @@ def test_evaluation(golden, monkeypatch):
         if isinstance(doc, dict) and doc.get("content") is not None
     ]
     text = "|".join(context)
-    if len(text) > 7500:
-        text = text[:7500]
-    substitute_key = os.getenv("Test_Key")
+    substitute_key = os.getenv("Test_Key")  # This will be used to generate LLM response
+    substitute_key2 = os.getenv("Test_Key2")  # This will be Used for the LLM judge
     if not substitute_key:
         return "Test key is not Set"
-    monkeypatch.setenv("GROQ_API_KEY", substitute_key)
+    monkeypatch.setenv("GROQ_API_KEY", substitute_key2)
     output = llm_response(text, golden.input)
     test_case = LLMTestCase(
         input=golden.input,
@@ -107,6 +109,7 @@ def test_evaluation(golden, monkeypatch):
         FaithfulnessMetric(threshold=0.7, model=model),
         AnswerRelevancyMetric(threshold=0.7, model=model),
     ]
+    sleep(5)
     evaluate(
         test_cases=[test_case],
         metrics=metrics,
