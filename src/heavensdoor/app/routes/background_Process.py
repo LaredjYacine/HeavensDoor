@@ -5,6 +5,7 @@ import time
 import httpx
 from celery.exceptions import MaxRetriesExceededError
 from fastapi import HTTPException, status
+from groq import RateLimitError
 from huggingface_hub.errors import BadRequestError, HfHubHTTPError
 from langchain.messages import HumanMessage
 from langgraph.errors import GraphRecursionError
@@ -16,7 +17,7 @@ from tenacity import (
 )
 from upstash_redis import Redis
 
-from ..services.agent import llm
+from ..services.agent import fallback_model, llm
 from ..services.celery import celery_app
 from ..services.langfuse_setup import start_agent_trace
 from ..services.Logger import JsonLlmLogger
@@ -46,6 +47,7 @@ def streaming(messages):
 )
 def run_agent_safely(
     payload,
+    llm,
     session_id=None,
     user_id=None,
     user_session_id=None,
@@ -86,13 +88,32 @@ def agent(self, session_id: str, query: str):
             )
         message = [HumanMessage(query)]
         try:
-            result = run_agent_safely(message, session_id=self.request.id)
+            result = run_agent_safely(message, llm, session_id=self.request.id)
             output = [
                 pprint.pformat(output.content, indent=2, width=40)
                 for output in reversed(result["messages"])
                 if getattr(output, "type", None) == "ai"
             ]
             return output
+        except RateLimitError:
+            try:
+                result = run_agent_safely(
+                    message, fallback_model, session_id=self.request.id
+                )
+                output = [
+                    pprint.pformat(output.content, indent=2, width=40)
+                    for output in reversed(result["messages"])
+                    if getattr(output, "type", None) == "ai"
+                ]
+                return output
+            except Exception as e:  # noqa: BLE001 If the Secondary Model prints back an error we Catch it and raise it to the outer layer
+                raise FallbackModelUnavailableError(
+                    {
+                        "Hugging Face fall back model (not the Fined tuned one ) error": str(
+                            e
+                        )
+                    }
+                )
 
         except GraphRecursionError:
             try:
