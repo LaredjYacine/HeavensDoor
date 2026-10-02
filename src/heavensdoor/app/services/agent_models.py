@@ -4,6 +4,7 @@ from typing import Annotated, Literal, TypedDict
 import truststore
 from langchain.messages import AnyMessage, SystemMessage, ToolMessage
 from langchain_groq import ChatGroq
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 from langgraph.graph import END
 
 from .credentials import hf_token
@@ -14,19 +15,22 @@ if hf_token is None:
     raise ValueError("hf_token is not set")
 
 
-# model= HuggingFaceEndpoint(
-#     repo_id="Qwen/Qwen2.5-3B-Instruct",
-#     do_sample=False,
-#     provider="featherless-ai",
-#     huggingfacehub_api_token=hf_token,
-# )# type: ignore
+model = HuggingFaceEndpoint(
+    repo_id="Qwen/Qwen2.5-3B-Instruct",
+    do_sample=False,
+    provider="featherless-ai",
+    huggingfacehub_api_token=hf_token,
+)  # type: ignore
 
 
 chat_model = ChatGroq(model="qwen/qwen3.8-27b", temperature=0.7)
 
-# chat_model = ChatHuggingFace(llm=model)
+chat_model_Fall_Back = ChatHuggingFace(llm=model)
+
+
 tools_by_name = {tool.name: tool for tool in tools}
 model_with_tools = chat_model.bind_tools(tools)
+fallback_model_with_tools = chat_model_Fall_Back.bind_tools(tools)
 
 
 class MessageState(TypedDict):
@@ -43,6 +47,31 @@ def llm_calls(state: dict):
     return {
         "messages": [
             model_with_tools.invoke(
+                [
+                    SystemMessage(
+                        content=(
+                            """ you are an assistant your task is to Help the user To either find a candidate or a job,
+                            Your must give a General summary to  the output to fit the users request
+                             """
+                        )
+                    )
+                ]
+                + state["messages"]
+            )
+        ],
+        "llm_calls": state.get("llm_calls", 0) + 1,
+    }
+
+
+def llm_calls_FallBack(state: dict):
+    """
+    LLM decides whether to call a tool or not
+
+
+    """
+    return {
+        "messages": [
+            fallback_model_with_tools.invoke(
                 [
                     SystemMessage(
                         content=(
