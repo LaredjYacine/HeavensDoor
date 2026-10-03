@@ -15,7 +15,7 @@ if not LANGFUSE_ENABLED:
 @contextlib.contextmanager
 def start_agent_trace(
     *,
-    name="job-matching-agent",
+    Name: str,
     session_id=None,
     user_id=None,
     tags=None,
@@ -44,10 +44,10 @@ def start_agent_trace(
 
     with (
         langfuse.start_as_current_observation(
-            as_type="span", name="agent-execution", input={"query": query}
+            as_type="span", name=Name, input={"query": query}
         ) as span,
         propagate_attributes(
-            trace_name=name,
+            trace_name=Name,
             session_id=session_id,
             user_id=user_id,
             tags=tags,

@@ -16,7 +16,7 @@ if hf_token is None:
 
 
 model = HuggingFaceEndpoint(
-    repo_id="Qwen/Qwen2.5-3B-Instruct",
+    repo_id="Qwen/Qwen3.8-27B",
     do_sample=False,
     provider="featherless-ai",
     huggingfacehub_api_token=hf_token,
@@ -86,6 +86,28 @@ def llm_calls_FallBack(state: dict):
         ],
         "llm_calls": state.get("llm_calls", 0) + 1,
     }
+
+
+def make_llm_node(model_to_use):
+    def node_func(state: dict):
+        return {
+            "messages": [
+                model_to_use.invoke(
+                    [
+                        SystemMessage(
+                            content=(
+                                "you are an assistant your task is to Help the user To either find a candidate or a job, "
+                                "Your must give a General summary to the output to fit the users request"
+                            )
+                        )
+                    ]
+                    + state["messages"]
+                )
+            ],
+            "llm_calls": state.get("llm_calls", 0) + 1,
+        }
+
+    return node_func
 
 
 def should_continue(state: dict) -> Literal["tool_node", END]:  # type: ignore
