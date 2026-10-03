@@ -2,10 +2,10 @@ import json
 import pprint
 import time
 
+import groq
 import httpx
 from celery.exceptions import MaxRetriesExceededError
 from fastapi import HTTPException, status
-from groq import RateLimitError
 from huggingface_hub.errors import BadRequestError, HfHubHTTPError
 from langchain.messages import HumanMessage
 from langgraph.errors import GraphRecursionError
@@ -42,12 +42,15 @@ def streaming(messages):
     wait=wait_exponential(
         multiplier=2, min=2, max=10
     ),  # Wait 2s, 4s, 8s... between tries
-    retry=retry_if_exception_type((BadRequestError, httpx.HTTPStatusError, Exception)),
+    retry=retry_if_exception_type(
+        (groq.BadRequestError, BadRequestError, httpx.HTTPStatusError, Exception)
+    ),
     reraise=True,  # Raise the final error if all retries fail
 )
 def run_agent_safely(
     payload,
     llm,
+    name="job-matching-agent",
     session_id=None,
     user_id=None,
     user_session_id=None,
@@ -55,6 +58,7 @@ def run_agent_safely(
     query = payload[-1].content if payload else None
 
     with start_agent_trace(
+        Name=name,
         session_id=session_id,
         user_id=user_id,
         tags=["agent", "langgraph", "groq"],
@@ -95,10 +99,16 @@ def agent(self, session_id: str, query: str):
                 if getattr(output, "type", None) == "ai"
             ]
             return output
-        except RateLimitError:
+        except (groq.RateLimitError, groq.BadRequestError, groq.APIStatusError):
             try:
+                print(
+                    "\n *************** IN THE RATE LIMIT EXCEPT ERROR ************** \n"
+                )
                 result = run_agent_safely(
-                    message, fallback_model, session_id=self.request.id
+                    message,
+                    fallback_model,
+                    name="Fall-Back-Model",
+                    session_id=self.request.id,
                 )
                 output = [
                     pprint.pformat(output.content, indent=2, width=40)
@@ -142,4 +152,7 @@ def agent(self, session_id: str, query: str):
             "error": str(e),
         }
         client.rpush("dlq:agent", json.dumps(dlq))
-        return {"status": "failed", "moved_to_dlq": True, "error": str(e)}
+        print({"status": "failed", "moved_to_dlq": True, "error": str(e)})
+        return [
+            "couldnt fulfill your request at the current time, please try again later"
+        ]

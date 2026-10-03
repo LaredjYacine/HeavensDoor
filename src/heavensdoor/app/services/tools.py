@@ -126,6 +126,8 @@ def default_Answer(query: str):
     Args:
         query: The user's request.
     """
+    if Finetuned is None:
+        return ["Fine tuned model was Not found Sorry for inconvenience"]
     result = Finetuned.predict(user_text=query, api_name="/predict")
     return str(result)
 

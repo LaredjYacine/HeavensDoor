@@ -1,7 +1,13 @@
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 
-from .agent_models import MessageState, llm_calls, should_continue, tool_node
+from .agent_models import (
+    MessageState,
+    llm_calls,
+    llm_calls_FallBack,
+    should_continue,
+    tool_node,
+)
 
 memory = MemorySaver()
 agent_builder = StateGraph(MessageState)
@@ -15,11 +21,11 @@ llm = agent_builder.compile(checkpointer=memory)
 
 # fall back Model
 agent_builder_fallback = StateGraph(MessageState)
-agent_builder_fallback.add_node("llm_calls", llm_calls)  # type: ignore
+agent_builder_fallback.add_node("llm_calls_FallBack", llm_calls_FallBack)  # type: ignore
 agent_builder_fallback.add_node("tool_node", tool_node)  # type: ignore
-agent_builder_fallback.add_edge(START, "llm_calls")
+agent_builder_fallback.add_edge(START, "llm_calls_FallBack")
 agent_builder_fallback.add_conditional_edges(
-    "llm_calls", should_continue, ["tool_node", END]
+    "llm_calls_FallBack", should_continue, ["tool_node", END]
 )
-agent_builder_fallback.add_edge("tool_node", "llm_calls")
+agent_builder_fallback.add_edge("tool_node", "llm_calls_FallBack")
 fallback_model = agent_builder_fallback.compile(checkpointer=memory)
