@@ -26,27 +26,28 @@ from ..services.SSL_fix import Finetuned
 client = Redis.from_env()
 
 
-def redisStreaming(job_id: str, token: str, node: str, stream_Name):
+def redisStreaming(job_id: str, token: str, stream_Name):
     message_id = client.xadd(
         key=job_id,
         id="*",
         data={
             "token": token,
-            "node": node,
         },
         maxlen=1000,
         approximate_trim=True,
     )
+    client.expire(job_id, 3600)
     print(f"Successfully stored token with ID: {message_id}")
 
 
 def streaming(messages, stream_Name, job_id):
     message_array = []
-    for chunk in messages:
-        node = chunk["node"]
-        message, _ = chunk["data"]
-        redisStreaming(job_id, message, node, stream_Name)
-        message_array.append(message)
+    for chunk in messages.messages:
+        for token in chunk.text:
+            if not token:
+                continue
+            redisStreaming(job_id, token, stream_Name)
+            message_array.append(token)
     return message_array
 
 
@@ -97,10 +98,11 @@ def run_agent_safely(
         last = " ".join(array)
         if trace["span"] is not None:
             trace["span"].update(output={"response": last})
+        return last
 
 
-@celery_app.task(name="agent", bind=True, max_retries=3, default_retry_delay=1)
-def agent(self, session_id: str, query: str):
+@celery_app.task(name="stream", bind=True, max_retries=3, default_retry_delay=1)
+def stream(self, session_id: str, query: str):
     try:
         if query is None:
             raise HTTPException(
@@ -157,7 +159,7 @@ def agent(self, session_id: str, query: str):
             "time": time.time(),
             "error": str(e),
         }
-        client.rpush("dlq:agent", json.dumps(dlq))
+        client.rpush("dlq:stream", json.dumps(dlq))
         print({"status": "failed", "moved_to_dlq": True, "error": str(e)})
         return [
             "couldnt fulfill your request at the current time, please try again later"
