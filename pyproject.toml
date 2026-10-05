@@ -27,6 +27,7 @@ dependencies = [
     "openai>=3.3.0",
     "pandas>=3.0.5",
     "pre-commit>=4.6.2",
+    "pydantic>=2.13.5",
     "python-certifi-win32>=1.6.1",
     "redis>=8.1.0",
     "sentence-transformers>=6.1.0",

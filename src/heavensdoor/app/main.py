@@ -1,3 +1,5 @@
+import os
+
 # main.py
 import dotenv
 from fastapi import FastAPI
@@ -7,16 +9,18 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from .routes.Apiagent import route
+from .routes.StreamingApi import stream_router
 from .services.limiter import limiter
 
 dotenv.load_dotenv()
-import os
 
 app = FastAPI()
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
 app.include_router(route)
+app.include_router(stream_router)
+
 app.mount("/static", StaticFiles(directory="src/heavensdoor/app/static"), name="static")
 
 
