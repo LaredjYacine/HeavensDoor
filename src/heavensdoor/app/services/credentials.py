@@ -1,7 +1,15 @@
 import os
 
 import dotenv
+from pydantic import BaseModel
 from supabase import create_client
+
+
+class AgentRequest(BaseModel):
+    query: str
+    session_id: str | None = None
+    idempotency_key: str | None = None
+
 
 dotenv.load_dotenv()
 hf_token: str | None = os.getenv("hf_token")

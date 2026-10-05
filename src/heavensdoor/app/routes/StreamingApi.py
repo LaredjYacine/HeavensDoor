@@ -7,10 +7,11 @@ from fastapi.responses import StreamingResponse
 from upstash_redis import Redis
 
 from ..services.celery import celery_app
+from ..services.credentials import AgentRequest
 from ..services.limiter import limiter
 
 redis = Redis.from_env()
-stream_router = APIRouter()
+stream_router = APIRouter(prefix="/v2")
 
 
 def stream_result(job_id):
@@ -53,14 +54,12 @@ def stream_result(job_id):
                     return
 
 
-@stream_router.get("/v2/agent")
+@stream_router.post("/agent")
 @limiter.limit("1000/minute")
-async def read_root(
-    request: Request,
-    query: str,
-    session_id: str | None = None,
-    idempotency_key: str | None = None,
-):
+async def agent(request: Request, body: AgentRequest):
+    idempotency_key = body.idempotency_key
+    query = body.query
+    session_id = body.session_id
     if not idempotency_key:
         idempotency_key = str(uuid.uuid4())
     try:
@@ -86,9 +85,9 @@ async def read_root(
         return {"Status": "Error", "message": str(e)}
 
 
-@stream_router.get("/v2/result")
+@stream_router.get("/result")
 @limiter.limit("1000/minute")
-async def get_result(request: Request, job_id: str):
+async def result(request: Request, job_id: str):
     try:
         entries = redis.xrange(job_id, "-", "+")
         if entries:
