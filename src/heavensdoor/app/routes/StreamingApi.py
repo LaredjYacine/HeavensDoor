@@ -74,7 +74,7 @@ async def agent(request: Request, body: AgentRequest):
             }
         task = celery_app.send_task("stream", args=(session_id, query))
         return {
-            "Status": "Success",
+            "Status": "202 Accepted",
             "job_id": task.id,
             "idempotency_key": idempotency_key,
             "message": "Task submitted successfully.",
@@ -98,13 +98,13 @@ async def result(request: Request, job_id: str):
         celery_result = celery_app.AsyncResult(job_id)
         if celery_result.ready():
             result = celery_result.get()
-            return {"Status": "Success", "job_id": job_id, "result": result}
+            return {"status": "202 Accepted", "job_id": job_id, "result": result}
         else:
             return {
-                "Status": "Pending",
+                "status": "PENDING",
                 "job_id": job_id,
                 "message": "Task is still in progress.",
             }
 
     except Exception as e:  # noqa: BLE001
-        return {"Status": "Error", "message": str(e)}
+        return {"status": "Error", "message": str(e)}
