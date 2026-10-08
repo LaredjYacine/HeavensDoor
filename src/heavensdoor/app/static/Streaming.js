@@ -46,44 +46,59 @@ form.addEventListener('submit', async function (event) {
     const SolidData = await getResult(Id); // Added missing semicolon
     const streamedData = await getResultStream(Id);
 
-    removeTypingIndicator();
+
 
     // Create the assistant message element so we have somewhere to put tokens
-    const outputElement = document.createElement('div');
-    outputElement.classList.add('message', 'assistant');
-    document.getElementById("chat").appendChild(outputElement);
+
 
     if (SolidData) {
+      removeTypingIndicator();
         cleanPythonString(SolidData);
+      const outputElement = document.createElement('div');
+      outputElement.classList.add('message', 'assistant');
+      document.getElementById("chat").appendChild(outputElement);
         addAssistantMessageAnimated(SolidData);
         pinPrompt();
     }
 
     let fullresponse = '';
+    let outputElement= null
     for await (const token of getResultStream(Id)) {
-        if (token) {
+        if (!token) {continue}
+          if(!outputElement){
+            removeTypingIndicator();
+            outputElement = document.createElement('div');
+            outputElement.classList.add('message', 'assistant');
+            document.getElementById("chat").appendChild(outputElement);
+          }
+          fullresponse+= token
 
-textStreamer.start(outputElement, token, 10);
-            scrollToBottom();
-        }
+
+          textStreamer.start(outputElement, token, 10);
+
+          scrollToBottom();
+
     }
+    await textStreamer.waitUntilFinished();
+    outputElement.innerHTML= marked.parse(fullresponse)
     pinPrompt();
 
     resetInput(); // Moved inside the async function block properly
 });
 
 
-// We use a helper object or closure to keep track of the active element and queue
 const textStreamer = {
     targetElement: null,
     isStreaming: false,
     queue: '',
+    resolveFinished: null,
 
     async start(element, initialText = '', delayMs = 30) {
         this.targetElement = element;
         this.queue += initialText;
 
-        if (this.isStreaming) return; // If already streaming, just let the loop pick up the new text
+        if (this.isStreaming) return;
+
         this.isStreaming = true;
 
         while (this.queue.length > 0) {
@@ -92,20 +107,31 @@ const textStreamer = {
 
             this.targetElement.textContent += nextChar;
 
-            // Optional: scrollToBottom();
-
             await new Promise(resolve => setTimeout(resolve, delayMs));
         }
 
         this.isStreaming = false;
+
+        if (this.resolveFinished) {
+            this.resolveFinished();
+            this.resolveFinished = null;
+        }
     },
 
-    // Call this whenever you receive a new word or chunk later
     append(newText) {
         this.queue += newText;
+    },
+
+    waitUntilFinished() {
+        if (!this.isStreaming && this.queue.length === 0) {
+            return Promise.resolve();
+        }
+
+        return new Promise(resolve => {
+            this.resolveFinished = resolve;
+        });
     }
 };
-
 
 
 
@@ -207,7 +233,6 @@ async function* getResultStream(Id) {
 
 
         const reader = response.body.getReader();
-        console.log("Streaming started", reader);
         const decoder = new TextDecoder();
 
         while (true) {
@@ -223,8 +248,6 @@ async function* getResultStream(Id) {
                     if (!jsonString) continue;
 
                     const data = JSON.parse(jsonString);
-                    console.log(data['token'])
-                    console.log('This is data alone ', data)
                     if (data.done) {
                       yield data.token
 
@@ -331,7 +354,6 @@ async function getResult(Id){
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
           const result = await response.json();
-          console.log(result.status);
 
           if (result.status === 'PENDING' || result.status === 'STARTED') {
               await new Promise(resolve => setTimeout(resolve, 1000));
