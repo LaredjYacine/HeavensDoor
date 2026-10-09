@@ -60,6 +60,7 @@ form.addEventListener('submit', async function (event) {
 
           textStreamer.start(outputElement, token, 10);
 
+          scrollToBottom();
 
     }
     await textStreamer.waitUntilFinished();
@@ -77,39 +78,44 @@ const textStreamer = {
     targetElement: null,
     isStreaming: false,
     queue: '',
-
     resolveFinished: null,
-    chunk:'',
+    rawAccumulated: '',
+    chunk: '',
+
     async start(element, initialText = '', delayMs = 30) {
-
-      this.targetElement = element;
+        this.targetElement = element;
         this.queue += initialText;
-
-       this.chunk +=initialText
 
         if (this.isStreaming) return;
 
         this.isStreaming = true;
 
         while (this.queue.length > 0) {
-
-
-
-
-
             const nextChar = this.queue[0];
             this.queue = this.queue.slice(1);
 
+            this.chunk += nextChar;
+            this.rawAccumulated += nextChar;
 
-            this.targetElement.textContent += nextChar;
+            console.log('Accumulated words:', this.rawAccumulated);
 
-          if (this.chunk && getCleanWords(this.chunk)){
+            // Check if chunk contains at least 1 clean word
+            const words = getCleanWords(this.chunk);
 
-                this.targetElement.innerHTML= marked.parse(this.targetElement.textContent)
-                this.chunk=''
-              }
+            if (words && words.length > 0) {
+                // Parse markdown and update DOM
+                this.targetElement.innerHTML = marked.parse(this.rawAccumulated);
+                this.chunk = ''; // Reset word buffer
+            } else {
+                // For non-word chars (like spaces/punctuation), render raw text smoothly without wiping HTML
+                this.targetElement.innerHTML = marked.parse(this.rawAccumulated);
+            }
 
             await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+
+        if (this.targetElement && this.rawAccumulated) {
+            this.targetElement.innerHTML = marked.parse(this.rawAccumulated);
         }
 
         this.isStreaming = false;
@@ -135,53 +141,14 @@ const textStreamer = {
     }
 };
 
-
 function getCleanWords(text) {
   const words =  text.match(/\b[a-zA-Z0-9']+\b/g) || [];
-  return words.length >= 10;
+  return words.length >= 1;
 }
 function resetInput() {
     Lock = false;
     promptInput.disabled = false;
     promptInput.placeholder = 'Chat with Heaven';
-}
-function cleanPythonString(rawStr) {
-    if (!rawStr) return '';
-    let cleaned = rawStr.trim();
-
-    // 1. Remove a leading '(' and any starting quote
-    if (cleaned.startsWith('(')) {
-        cleaned = cleaned.substring(1).trim();
-    }
-    if (cleaned.startsWith("'") || cleaned.startsWith('"')) {
-        cleaned = cleaned.substring(1);
-    }
-
-    // 2. Remove trailing Python tuple artifacts like '),', '),''', or just ')'
-    cleaned = cleaned.replace(/\s*\),\s*['"]*$/, '');
-    cleaned = cleaned.replace(/\s*\)\s*$/, '');
-
-    // 3. Remove a trailing quote left hanging from the wrapper
-    if ((cleaned.endsWith("'") || cleaned.endsWith('"')) && !cleaned.endsWith("\\'")) {
-        cleaned = cleaned.substring(0, cleaned.length - 1);
-    }
-
-    // 4. Split by newlines and unquote individual Python string pieces
-    const lines = cleaned.split('\n');
-    const finalParts = [];
-
-    for (let line of lines) {
-        line = line.trim();
-        if (line.startsWith("'") && line.endsWith("'")) {
-            finalParts.push(line.slice(1, -1));
-        } else {
-            finalParts.push(line);
-        }
-    }
-
-    // 5. Join pieces back and convert literal escaped '\n' into real line breaks
-    const joined = finalParts.join('');
-    return joined.replace(/\\n/g, '\n').trim();
 }
 
 function pinPrompt() {
@@ -340,65 +307,3 @@ function addUserMessage(text) {
     chat.appendChild(message);
     scrollToBottom();
 }
-
-
-async function addAssistantMessageAnimated(text) {
-    const chat = document.getElementById('chat');
-
-    const message = document.createElement('div');
-    message.classList.add('message', 'assistant');
-    chat.appendChild(message);
-
-    let currentText = '';
-    let index = 0;
-    const step = 5;
-    const speed = 4;
-
-    return new Promise((resolve) => {
-        tick(0);
-
-        function tick() {
-            if (index >= text.length) {
-                resolve();
-                return;
-            }
-            const next = Math.min(index + step, text.length);
-            currentText = text.slice(0, next);
-            message.innerHTML = marked.parse(currentText);
-            scrollToBottom();
-            index = next;
-            setTimeout(tick, speed);
-        }
-    });
-}
-
-async function getResult(Id){
-  try {
-      const response = await fetch(
-          `${url}/v2/result?job_id=${encodeURIComponent(Id)}`,
-          {
-              method: 'GET',
-              headers: {
-                  'Content-Type': 'application/json'
-              }
-          }
-      );
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-          const result = await response.json();
-
-          if (result.status === 'PENDING' || result.status === 'STARTED') {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-              return await getResult(Id);
-          }
-          if (result.status === '202 Accepted') {
-              return result;
-          }
-          return result;
-      }
-      return null
-  }
-      catch (error){
-        console.error(error)
-      }
-      }
