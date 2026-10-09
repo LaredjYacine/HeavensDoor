@@ -22,7 +22,7 @@ def stream_result(job_id):
     while empty_polls < max_empty_polls:
         try:
             stream = redis.xread({job_id: last_id}, count=10)
-        except Exception:  # noqa: BLE001 - process boundary: convert any failure into a DLQ recor
+        except Exception:  # noqa: BLE001
             stream = None
 
         if not stream:
@@ -35,7 +35,6 @@ def stream_result(job_id):
             for message_id, data in messages:
                 last_id = message_id
 
-                # Safely normalize data whether Upstash returns a dict or a list
                 if isinstance(data, list):
                     data_dict = {data[i]: data[i + 1] for i in range(0, len(data), 2)}
                 elif isinstance(data, dict):
@@ -44,13 +43,16 @@ def stream_result(job_id):
                     continue
 
                 token = data_dict.get("token")
-                if not token:
+                done = str(data_dict.get("done", "false")).lower() == "true"
+
+                if token is None:
                     continue
 
-                payload = json.dumps({"token": token})
+                # Properly format as an SSE data event
+                payload = json.dumps({"token": token, "done": done})
                 yield f"data: {payload}\n\n"
 
-                if token == "[DONE]":
+                if done or token == "[DONE]":
                     return
 
 
@@ -74,7 +76,7 @@ async def agent(request: Request, body: AgentRequest):
             }
         task = celery_app.send_task("stream", args=(session_id, query))
         return {
-            "Status": "Success",
+            "Status": "202 Accepted",
             "job_id": task.id,
             "idempotency_key": idempotency_key,
             "message": "Task submitted successfully.",
@@ -98,13 +100,13 @@ async def result(request: Request, job_id: str):
         celery_result = celery_app.AsyncResult(job_id)
         if celery_result.ready():
             result = celery_result.get()
-            return {"Status": "Success", "job_id": job_id, "result": result}
+            return {"status": "202 Accepted", "job_id": job_id, "result": result}
         else:
             return {
-                "Status": "Pending",
+                "status": "PENDING",
                 "job_id": job_id,
                 "message": "Task is still in progress.",
             }
 
     except Exception as e:  # noqa: BLE001
-        return {"Status": "Error", "message": str(e)}
+        return {"status": "Error", "message": str(e)}

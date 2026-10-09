@@ -26,13 +26,11 @@ from ..services.SSL_fix import Finetuned
 client = Redis.from_env()
 
 
-def redisStreaming(job_id: str, token: str, stream_Name):
+def redisStreaming(job_id: str, token: str, done, stream_Name):
     message_id = client.xadd(
         key=job_id,
         id="*",
-        data={
-            "token": token,
-        },
+        data={"token": token, "done": done},
         maxlen=1000,
         approximate_trim=True,
     )
@@ -46,8 +44,9 @@ def streaming(messages, stream_Name, job_id):
         for token in chunk.text:
             if not token:
                 continue
-            redisStreaming(job_id, token, stream_Name)
+            redisStreaming(job_id, token, False, stream_Name)
             message_array.append(token)
+    redisStreaming(job_id, "", True, stream_Name)
     return message_array
 
 
