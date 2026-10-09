@@ -4,7 +4,6 @@ from typing import Annotated, Literal, TypedDict
 import truststore
 from langchain.messages import AnyMessage, SystemMessage, ToolMessage
 from langchain_groq import ChatGroq
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 from langgraph.graph import END
 
 from .credentials import hf_token
@@ -15,17 +14,12 @@ if hf_token is None:
     raise ValueError("hf_token is not set")
 
 
-model = HuggingFaceEndpoint(
-    repo_id="Qwen/Qwen3.8-27B",
-    do_sample=False,
-    provider="featherless-ai",
-    huggingfacehub_api_token=hf_token,
-)  # type: ignore
+model = ChatGroq(model="meta-llama/llama-prompt-guard-2-22m")  # type: ignore
 
 
 chat_model = ChatGroq(model="qwen/qwen3.8-27b", temperature=0.7)
 
-chat_model_Fall_Back = ChatHuggingFace(llm=model)
+chat_model_Fall_Back = model  # ChatGroq(llm=model)
 
 
 tools_by_name = {tool.name: tool for tool in tools}

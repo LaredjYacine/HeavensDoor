@@ -43,28 +43,12 @@ form.addEventListener('submit', async function (event) {
         return;
     }
 
-    const SolidData = await getResult(Id); // Added missing semicolon
-    const streamedData = await getResultStream(Id);
-
-
-
     // Create the assistant message element so we have somewhere to put tokens
 
-
-    if (SolidData) {
-      removeTypingIndicator();
-        cleanPythonString(SolidData);
-      const outputElement = document.createElement('div');
-      outputElement.classList.add('message', 'assistant');
-      document.getElementById("chat").appendChild(outputElement);
-        addAssistantMessageAnimated(SolidData);
-        pinPrompt();
-    }
-
     let fullresponse = '';
-    let outputElement= null
+    let outputElement = null;
     for await (const token of getResultStream(Id)) {
-        if (!token) {continue}
+        if (!token || token === '[DONE]') {continue}
           if(!outputElement){
             removeTypingIndicator();
             outputElement = document.createElement('div');
@@ -76,14 +60,16 @@ form.addEventListener('submit', async function (event) {
 
           textStreamer.start(outputElement, token, 10);
 
-          scrollToBottom();
 
     }
     await textStreamer.waitUntilFinished();
-    outputElement.innerHTML= marked.parse(fullresponse)
+    if (outputElement) {
+        outputElement.innerHTML = marked.parse(fullresponse);
+    }
     pinPrompt();
+    removeTypingIndicator();
 
-    resetInput(); // Moved inside the async function block properly
+    resetInput();
 });
 
 
@@ -91,21 +77,37 @@ const textStreamer = {
     targetElement: null,
     isStreaming: false,
     queue: '',
-    resolveFinished: null,
 
+    resolveFinished: null,
+    chunk:'',
     async start(element, initialText = '', delayMs = 30) {
-        this.targetElement = element;
+
+      this.targetElement = element;
         this.queue += initialText;
+
+       this.chunk +=initialText
 
         if (this.isStreaming) return;
 
         this.isStreaming = true;
 
         while (this.queue.length > 0) {
+
+
+
+
+
             const nextChar = this.queue[0];
             this.queue = this.queue.slice(1);
 
+
             this.targetElement.textContent += nextChar;
+
+          if (this.chunk && getCleanWords(this.chunk)){
+
+                this.targetElement.innerHTML= marked.parse(this.targetElement.textContent)
+                this.chunk=''
+              }
 
             await new Promise(resolve => setTimeout(resolve, delayMs));
         }
@@ -134,7 +136,10 @@ const textStreamer = {
 };
 
 
-
+function getCleanWords(text) {
+  const words =  text.match(/\b[a-zA-Z0-9']+\b/g) || [];
+  return words.length >= 10;
+}
 function resetInput() {
     Lock = false;
     promptInput.disabled = false;
@@ -220,7 +225,13 @@ function scrollToBottom() {
 
 
 async function* getResultStream(Id) {
-    try {
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let polls = 0;
+    const maxPolls = 180;
+
+    while (polls < maxPolls) {
+        polls++;
         const response = await fetch(
             `${url}/v2/result?job_id=${encodeURIComponent(Id)}`,
             {
@@ -231,34 +242,55 @@ async function* getResultStream(Id) {
             }
         );
 
+        const contentType = response.headers.get('content-type') || '';
+
+        if (contentType.includes('application/json')) {
+            const result = await response.json();
+
+            if (result.status === 'PENDING' || result.status === 'STARTED') {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                continue;
+            }
+            if (result.status === '202 Accepted' && result.result) {
+                yield result.result;
+            }
+            return;
+        }
 
         const reader = response.body.getReader();
-        const decoder = new TextDecoder();
 
         while (true) {
             const { value, done } = await reader.read();
             if (done) break;
 
-            const text = decoder.decode(value, { stream: true });
-            const lines = text.split('\n');
+            buffer += decoder.decode(value, { stream: true });
 
-            for (const line of lines) {
-                if (line.startsWith('data:')) {
-                    const jsonString = line.replace('data:', '').trim();
-                    if (!jsonString) continue;
+            let newlineIndex;
+            while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+                const line = buffer.slice(0, newlineIndex);
+                buffer = buffer.slice(newlineIndex + 1);
 
-                    const data = JSON.parse(jsonString);
-                    if (data.done) {
-                      yield data.token
+                if (!line.startsWith('data:')) continue;
 
-                        break;
-                    }
-                    yield data.token
+                const jsonString = line.replace('data:', '').trim();
+                if (!jsonString) continue;
+
+                let data;
+                try {
+                    data = JSON.parse(jsonString);
+                } catch (error) {
+                    console.error(error);
+                    continue;
                 }
+
+                if (data.done) {
+                    yield data.token;
+                    return;
+                }
+                yield data.token;
             }
         }
-    } catch (error) {
-        console.error(error);
+        return;
     }
 }
 
@@ -270,7 +302,7 @@ async function postprompt(text, idempotency, sessionId) {
         const idempotencyId = idempotency
 
 
-        const body = JSON.stringify({'query':text, 'sessionId':sessionId,'idempotency_key':idempotency})
+        const body = JSON.stringify({'query':text, 'session_id':sessionId,'idempotency_key':idempotency})
 
         const response = await fetch(
             `${url}/v2/agent`,
