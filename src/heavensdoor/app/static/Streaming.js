@@ -97,7 +97,6 @@ const textStreamer = {
             this.chunk += nextChar;
             this.rawAccumulated += nextChar;
 
-            console.log('Accumulated words:', this.rawAccumulated);
 
             // Check if chunk contains at least 1 clean word
             const words = getCleanWords(this.chunk);
@@ -121,6 +120,7 @@ const textStreamer = {
         this.isStreaming = false;
 
         if (this.resolveFinished) {
+          this.rawAccumulated=''
             this.resolveFinished();
             this.resolveFinished = null;
         }

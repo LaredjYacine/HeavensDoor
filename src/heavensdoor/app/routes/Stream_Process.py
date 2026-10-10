@@ -38,15 +38,27 @@ def redisStreaming(job_id: str, token: str, done, stream_Name):
     print(f"Successfully stored token with ID: {message_id}")
 
 
-def streaming(messages, stream_Name, job_id):
+def streaming(messages, stream_name, job_id):
+    buffer: list[str] = []
     message_array = []
+
+    def flush():
+        if buffer:
+            redisStreaming(job_id, "".join(buffer), False, stream_name)
+            buffer.clear()
+
     for chunk in messages.messages:
-        for token in chunk.text:
-            if not token:
+        for ch in chunk.text:
+            if not ch:
                 continue
-            redisStreaming(job_id, token, False, stream_Name)
-            message_array.append(token)
-    redisStreaming(job_id, "", True, stream_Name)
+            message_array.append(ch)
+            buffer.append(ch)
+            if (
+                ch in " \n\t" or len(buffer) >= 32
+            ):  # flush at word end, or every 32 chars
+                flush()
+    flush()  # leftover part of the last word
+    redisStreaming(job_id, "", True, stream_name)
     return message_array
 
 
@@ -60,7 +72,7 @@ class FallbackModelUnavailableError(RuntimeError):
         multiplier=2, min=2, max=10
     ),  # Wait 2s, 4s, 8s... between tries
     retry=retry_if_exception_type(
-        (groq.BadRequestError, BadRequestError, httpx.HTTPStatusError, Exception)
+        (groq.BadRequestError, BadRequestError, httpx.HTTPStatusError)
     ),
     reraise=True,  # Raise the final error if all retries fail
 )

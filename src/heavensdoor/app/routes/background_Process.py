@@ -43,7 +43,7 @@ def streaming(messages):
         multiplier=2, min=2, max=10
     ),  # Wait 2s, 4s, 8s... between tries
     retry=retry_if_exception_type(
-        (groq.BadRequestError, BadRequestError, httpx.HTTPStatusError, Exception)
+        (groq.BadRequestError, BadRequestError, httpx.HTTPStatusError)
     ),
     reraise=True,  # Raise the final error if all retries fail
 )
