@@ -57,7 +57,7 @@ def agent(
 @limiter.limit("10000/minute")
 def result(request: Request, job_id: str):
     try:
-        data = client.get(f"job_id : {job_id}")
+        data = client.get(f"job_id:{job_id}")
         if data:
             data_json = json.loads(data)
             if data_json:
