@@ -119,7 +119,7 @@ def test_result_reads_cached_value(client, redis_fake):
     cached = json.dumps(
         {"job_id": "abc-123", "state": "SUCCESS", "result": "Cached answer"}
     )
-    redis_fake.store["job_id : abc-123"] = cached
+    redis_fake.store["job_id:abc-123"] = cached
 
     response = client.get("/result?job_id=abc-123")
 
