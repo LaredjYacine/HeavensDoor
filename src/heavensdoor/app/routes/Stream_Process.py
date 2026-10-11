@@ -21,6 +21,7 @@ from ..services.agent import fallback_model, llm
 from ..services.celery import celery_app
 from ..services.langfuse_setup import start_agent_trace
 from ..services.Logger import JsonLlmLogger
+from ..services.PromptModel import evaluate_response
 from ..services.SSL_fix import Finetuned
 
 client = Redis.from_env()
@@ -119,6 +120,15 @@ def stream(self, session_id: str, query: str):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="query must not be None"
             )
+
+        result = str(evaluate_response(str(query)))
+        if float(result) > 0.49:
+            print(result)
+            print(float(result))
+            return ["i cannot help you with this task "]
+        print("testiojng")
+        print(float(result))
+        print(float(result) > 0.49)
         message = [HumanMessage(query)]
         try:
             run_agent_safely(message, llm, session_id=self.request.id)
