@@ -1,14 +1,13 @@
 from typing import Any
 
-from fastembed import TextEmbedding
-
 from .credentials import supabase_client
+from .embedmodel import get_embedding_model
+
+embedding_model = get_embedding_model()
 
 
 def rag_function(query_vector: str) -> list[Any]:
-    embedded_query = next(
-        iter(TextEmbedding(model="BAAI/bge-small-en-v1.5").embed([query_vector]))
-    )
+    embedded_query = next(iter(embedding_model.embed([query_vector])))
 
     vector_threshold = 0.50
     match_count = 2
