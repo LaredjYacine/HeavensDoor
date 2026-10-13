@@ -1,7 +1,13 @@
+import os
 from typing import Any
 
-from ..services.credentials import supabase_client
-from ..services.embedmodel import get_embedding_model
+import dotenv
+from supabase import create_client
+
+from heavensdoor.app.services.embedmodel import get_embedding_model
+
+dotenv.load_dotenv()
+supabase_client = create_client(os.environ["supabase_url"], os.environ["supabase_Key"])
 
 embedding_model = get_embedding_model()
 dataset = (
