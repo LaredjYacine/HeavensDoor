@@ -101,7 +101,7 @@ def run_agent_safely(
             {"messages": payload},
             version="v3",  # type: ignore
             config={
-                "configurable": {"thread_id": user_session_id},
+                "configurable": {"thread_id": session_id},
                 "recursion_limit": 15,
                 "callbacks": callbacks,
             },  # type: ignore
