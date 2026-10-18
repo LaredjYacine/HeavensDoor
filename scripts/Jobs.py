@@ -53,9 +53,8 @@ for (
     task_work_type = "".join([type for type in task["jobType"]])
     task_skill_requirement = "".join([skill for skill in task.get("jobIndustry", "")])
     task_job_description = task["jobDescription"]
-
+    task_link = task["url"]
     task_embeddings = next(iter(embedder.embed([task_job_description])))
-
     # Expiry date: 1 month after Jobicy's pubDate string
     pub_date = datetime.fromisoformat(task["pubDate"])
     task_expiry_date = (pub_date + relativedelta(months=1)).isoformat()
@@ -81,6 +80,7 @@ for (
             "skill_requirement": skill_requirement,
             "job_description": job_description,
             "embeddings": embeddings.tolist(),
+            "contact": task_link,
             "Expired_at": expiry_date,  # Matches your Supabase timestamptz column
         }
         supabase_client.table("Jobs").insert(payload).execute()
