@@ -10,7 +10,7 @@ def rag_function(query_vector: str) -> list[Any]:
     embedded_query = next(iter(embedding_model.embed([query_vector])))
 
     vector_threshold = 0.50
-    match_count = 2
+    match_count = 5
     dataset = supabase_client.rpc(
         "cosine_similarity",
         {
@@ -26,7 +26,7 @@ def rag_function(query_vector: str) -> list[Any]:
 
 
 def bm25_function(query_vector: str) -> list[Any]:
-    match_count = 1
+    match_count = 5
     data = supabase_client.rpc(
         "search_jobs_fts", {"search_query": query_vector, "match_limit": match_count}
     ).execute()
@@ -35,11 +35,15 @@ def bm25_function(query_vector: str) -> list[Any]:
     return data.data
 
 
-def hybridSearch(query: str) -> list[dict[str, Any]]:
+def hybridSearch(query: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     # comment :   A main problem in this hybrid search is  the lack of a ranker So
     # i will only fetch little information for now But when ranker is avaialble
     # fetch only the top 5
     rag_results: list = rag_function(query)
     bm25_results: list = bm25_function(query)
-    hybridsearch = rag_results + bm25_results  # type: ignore
-    return hybridsearch
+
+    return (rag_results, bm25_results)
+
+
+test = bm25_function("Software Engineer")
+print(test)
