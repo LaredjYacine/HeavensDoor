@@ -1,3 +1,6 @@
+import re
+from difflib import SequenceMatcher
+
 from langchain.tools import tool
 
 from .credentials import supabase_client
@@ -5,19 +8,89 @@ from .Search_function import hybridSearch
 from .SSL_fix import Finetuned
 
 
+def norm(s: str) -> str:
+    s = (s or "").lower()
+    s = re.sub(r"[^a-z0-9 ]", " ", s)
+    s = re.sub(r"\b(inc|llc|ltd|gmbh|corp|co|technologies|technology)\b", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+TEXT_FILTERS = ("company", "work_type", "location", "role")
+
+
+def matches(row, filters: dict):
+    for f in TEXT_FILTERS:
+        want = filters.get(f)
+        if not want:
+            continue
+        want = norm(want)
+        have = norm(row.get(f))
+        if want not in have and SequenceMatcher(None, have, want).ratio() < 0.70:
+            return False
+    return True
+
+
 @tool
-def HybridRag(query: str) -> str:
-    """Use this ONLY when the user does NOT provide a clear job title, but instead
-    describes responsibilities, technologies, or vague criteria (e.g., "something
-    focused on fixing database bottlenecks" or "a remote-friendly frontend role").
-    Do NOT use this if the user names a specific job title like "software engineer".
+def HybridRag(
+    query: str,
+    work_type: str | None = None,
+    company: str | None = None,
+    role: str | None = None,
+) -> str:
+    """Use this to find a job based on the users query ".
 
     Args:
         query: A description of duties, skills, or vague requirements.
+        work_type: is wether its Contractor , Full Time , Intern, Volunteer.
+        company: is the name of the company .
+        role : consists of the role of the job such as : Mid senior , Associate, Senior , ManagerSenior , Entery-level, Manager,Executive..etc
     """
     try:
-        result = hybridSearch(query)
-        return str(result)
+        filters = {
+            "work_type": work_type,
+            "company": company,
+            "role": role,
+        }
+        accepted_jobs = []
+        rag, bm25list = hybridSearch(query)
+        for row in bm25list:
+            result = matches(row, filters)
+            if result:
+                accepted_jobs.append(row)
+            continue
+        for row in rag:
+            filter = any([work_type, company, role])
+            if not filter:
+                accepted_jobs.append(row.get("content"))
+
+            for key, value in filters.items():
+                if not value:
+                    continue
+
+                id = row.get("id")
+
+                response = (
+                    supabase_client.table("Jobs").select(key).eq("id", id).execute()
+                )
+                if not response:
+                    continue
+                data = response.data
+                if not isinstance(data[0], dict):
+                    continue
+                the_key_we_are_looking_for = data[0].get(
+                    key
+                )  # we extract what we are looking for as in company ,role,or work_type
+                the_key_we_are_looking_for = norm(str(the_key_we_are_looking_for))
+                value = norm(value)
+                if (
+                    value not in the_key_we_are_looking_for
+                    and SequenceMatcher(None, value, the_key_we_are_looking_for).ratio()
+                    < 0.70
+                ):
+                    continue
+                accepted_jobs.append(row.get("content"))
+
+        return str(accepted_jobs)
     except Exception as e:  # noqa: BLE001
         print("Error occurred on Search tool:", str(e))
         return f"Error: {e!s}"

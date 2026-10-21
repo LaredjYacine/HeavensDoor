@@ -98,7 +98,7 @@ for (
                 "embeddings": task_embeddings.tolist(),
                 "Expired_at": task_expiry_date,  # 1 month after pubDate
             }
-            supabase_client.table("Jobs").insert(payload).execute()
+            supabase_client.table("Jobs").insert(task_payload).execute()
             print("Sucessfully Added Jobicy job to the database")
 
     except httpx.RequestError as e:
