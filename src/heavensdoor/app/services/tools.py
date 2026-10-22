@@ -41,56 +41,32 @@ def HybridRag(
 
     Args:
         query: A description of duties, skills, or vague requirements.
-        work_type: is wether its Contractor , Full Time , Intern, Volunteer.
+        work_type: is wether its Contractor , Full Time , Intern, Volunteer..etc
         company: is the name of the company .
         role : consists of the role of the job such as : Mid senior , Associate, Senior , ManagerSenior , Entery-level, Manager,Executive..etc
     """
     try:
+        seen = set()
         filters = {
             "work_type": work_type,
             "company": company,
             "role": role,
         }
         accepted_jobs = []
-        rag, bm25list = hybridSearch(query)
-        for row in bm25list:
+        rows = hybridSearch(query)
+
+        for row in rows:
             result = matches(row, filters)
-            if result:
-                accepted_jobs.append(row)
+            print(result)
+            if result and row["id"] not in seen:
+                seen.add(row["id"])
+                accepted_jobs.append(row["job_description"])
             continue
-        for row in rag:
-            filter = any([work_type, company, role])
-            if not filter:
-                accepted_jobs.append(row.get("content"))
-
-            for key, value in filters.items():
-                if not value:
-                    continue
-
-                id = row.get("id")
-
-                response = (
-                    supabase_client.table("Jobs").select(key).eq("id", id).execute()
-                )
-                if not response:
-                    continue
-                data = response.data
-                if not isinstance(data[0], dict):
-                    continue
-                the_key_we_are_looking_for = data[0].get(
-                    key
-                )  # we extract what we are looking for as in company ,role,or work_type
-                the_key_we_are_looking_for = norm(str(the_key_we_are_looking_for))
-                value = norm(value)
-                if (
-                    value not in the_key_we_are_looking_for
-                    and SequenceMatcher(None, value, the_key_we_are_looking_for).ratio()
-                    < 0.70
-                ):
-                    continue
-                accepted_jobs.append(row.get("content"))
-
-        return str(accepted_jobs)
+        if accepted_jobs:
+            return str(accepted_jobs[:5])
+        return (
+            "didnt find any matches for the requirements of the  job   you described "
+        )
     except Exception as e:  # noqa: BLE001
         print("Error occurred on Search tool:", str(e))
         return f"Error: {e!s}"
@@ -115,41 +91,6 @@ def matching_candidates(query: str) -> str:
         return "No candidates found matching that role."
     except Exception as e:  # noqa: BLE001
         print("Error occurred on matching_candidates tool:", str(e))
-        return f"Error: {e!s}"
-
-
-@tool
-def matching_jobs(query: str, job_type: str | None = None) -> str:
-    """Use this ONLY when the user explicitly names a specific job title or role
-    (e.g., "Software Engineer", "Data Scientist", "Product Manager").
-    This performs an exact/keyword search by job title.
-
-    Args:
-        query: The precise job title name extracted from the user prompt (e.g., "software engineer").
-        job_type: The type of job to filter by (e.g., "full-time", "part-time").
-    """
-    try:
-        if job_type is None:
-            response = (
-                supabase_client.table("Jobs")
-                .select("job_name,skill_requirement,work_type, role ,company")
-                .ilike("job_name", f"%{query}%")
-                .execute()
-            )
-        else:
-            response = (
-                supabase_client.table("Jobs")
-                .select("job_name,skill_requirement,work_type, role ,company")
-                .ilike("job_name", f"%{query}%")
-                .ilike("work_type", f"%{job_type}%")
-                .execute()
-            )
-
-        if response.data:
-            return str(response.data)
-        return "No jobs found matching that title."
-    except Exception as e:  # noqa: BLE001
-        print("Error occurred on matching_jobs tool:", str(e))
         return f"Error: {e!s}"
 
 
@@ -189,12 +130,7 @@ def table_schema(table_name: str) -> str:
 
 @tool
 def default_Answer(query: str):
-    """Use this for general knowledge questions, advice, explanations, or anything that is
-        NOT a request to search/query the Jobs or Candidates database. Examples: "what skills are
-        needed for backend development", "how do I write a good resume", "explain what a PM does."
-
-        If the user's question doesn't require looking up specific job postings, candidates, or
-        database records, use this tool rather than Search.
+    """This gives you access to A finetuned Model Use it when Needed for an Advice or When no tool is needed but requires information about certain Jobs or resumes
 
     Args:
         query: The user's request.
@@ -210,6 +146,5 @@ tools = [
     HybridRag,
     table_schema,
     get_tables,
-    matching_jobs,
     matching_candidates,
 ]
