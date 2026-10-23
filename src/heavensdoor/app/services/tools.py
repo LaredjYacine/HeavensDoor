@@ -1,3 +1,5 @@
+import html
+import json
 import re
 from difflib import SequenceMatcher
 
@@ -13,6 +15,28 @@ def norm(s: str) -> str:
     s = re.sub(r"[^a-z0-9 ]", " ", s)
     s = re.sub(r"\b(inc|llc|ltd|gmbh|corp|co|technologies|technology)\b", " ", s)
     return re.sub(r"\s+", " ", s).strip()
+
+
+_BLOCK = re.compile(
+    r"(?i)</?(p|div|li|ul|ol|h[1-6]|tr|br|section|article|strong|em)[^>]*>"
+)
+_TAGS = re.compile(r"<[^>]+>")
+_SPACE = re.compile(r"[ \t\r\f\v\xa0]+")
+_LINES = re.compile(r"\n\s*\n+")
+
+
+def clean_html(raw: str) -> str:
+    if not raw:
+        return ""
+    text = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", raw)  # drop script/style
+    text = _BLOCK.sub("\n", text)  # block/line tags -> newline
+    text = _TAGS.sub(" ", text)  # remaining tags -> space
+    text = html.unescape(text)  # &amp; &lt; &nbsp; ...
+    text = _SPACE.sub(" ", text)
+    text = _LINES.sub("\n", text)
+    text = text.strip()
+    text = " ".join(text.split())
+    return text
 
 
 TEXT_FILTERS = ("company", "work_type", "location", "role")
@@ -57,13 +81,25 @@ def HybridRag(
 
         for row in rows:
             result = matches(row, filters)
-            print(result)
             if result and row["id"] not in seen:
                 seen.add(row["id"])
-                accepted_jobs.append(row["job_description"])
+                accepted_jobs.append(
+                    {
+                        "id": str(row["id"]),
+                        "job_name": row.get("job_name"),
+                        "company_name": row.get("company"),
+                        "role": row.get("role"),
+                        "work_type": row.get("work_type"),
+                        "skill_requirement": row.get("skill_requirement"),
+                        "contact": row.get("contact"),
+                        "snippet": (clean_html(row.get("job_description")) or "")[:250],
+                    }
+                )
             continue
         if accepted_jobs:
-            return str(accepted_jobs[:5])
+            return json.dumps(
+                accepted_jobs[:5], ensure_ascii=False, separators=(",", ":")
+            )
         return (
             "didnt find any matches for the requirements of the  job   you described "
         )

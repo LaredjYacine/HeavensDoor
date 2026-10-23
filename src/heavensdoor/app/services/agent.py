@@ -30,4 +30,6 @@ agent_builder_fallback.add_conditional_edges(
     "llm_calls_FallBack", should_continue, ["tool_node", END]
 )
 agent_builder_fallback.add_edge("tool_node", "llm_calls_FallBack")
-fallback_model = agent_builder_fallback.compile(checkpointer=memory)
+fallback_model = agent_builder_fallback.compile(
+    checkpointer=memory, cache=InMemoryCache()
+)

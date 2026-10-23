@@ -14,7 +14,7 @@ if hf_token is None:
     raise ValueError("hf_token is not set")
 
 
-model = ChatGroq(model="allam-2-7b")  # type: ignore
+model = ChatGroq(model="openai/gpt-oss-120b")  # type: ignore
 
 
 chat_model = ChatGroq(model="qwen/qwen3.8-27b", temperature=0.7)

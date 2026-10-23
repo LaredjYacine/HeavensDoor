@@ -61,8 +61,3 @@ def hybridSearch(query: str) -> list[Any]:
         .data
     )
     return rows
-
-
-test = hybridSearch("Software Engineer")
-test = [sim["id"] for sim in test]
-print(test)
