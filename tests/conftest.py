@@ -45,11 +45,17 @@ supabase.create_client = _DummySupabaseClient
 from heavensdoor.app.routes import Apiagent
 
 
+def _id_key(entry_id):
+    ms, seq = entry_id.split("-")
+    return (int(ms), int(seq))
+
+
 class FakeRedis:
     """In-memory stand-in for the Upstash REST client."""
 
     def __init__(self):
         self.store = {}
+        self.streams = {}
 
     def set(self, key, value, nx=False, ex=None):
         if nx and key in self.store:
@@ -63,6 +69,28 @@ class FakeRedis:
     def rpush(self, *args):
         return 1
 
+    def xadd(self, key, entry_id, fields):
+        self.streams.setdefault(key, []).append((entry_id, fields))
+        return entry_id
+
+    def xrange(self, key, start="-", end="+"):
+        return list(self.streams.get(key, []))
+
+    def xread(self, streams, count=None):
+        out = []
+        for key, last_id in streams.items():
+            msgs = [
+                (i, f)
+                for i, f in self.streams.get(key, [])
+                if _id_key(i)
+                > _id_key(last_id)  # must respect last_id, or it loops forever
+            ]
+            if count:
+                msgs = msgs[:count]
+            if msgs:
+                out.append((key, msgs))
+        return out
+
 
 class FakeAsyncResult:
     def __init__(self, state, result):
@@ -70,18 +98,25 @@ class FakeAsyncResult:
         self.result = result
 
     def ready(self):
-        return True
+        return self.state in ("SUCCESS", "FAILURE", "REVOKED")
+
+    def get(self):
+        if self.state == "FAILURE":
+            raise RuntimeError("task failed")
+        return self.result
 
 
 class FakeCelery:
     def __init__(self, state="SUCCESS", result=None):
         self._state = state
         self._result = result
+        self.calls = []
 
     def _task(self):
         return SimpleNamespace(id="test-job-id")
 
     def send_task(self, name, args=None, **kwargs):
+        self.calls.append((name, args))
         return self._task()
 
     def AsyncResult(self, job_id, app=None):
@@ -150,6 +185,21 @@ def client(monkeypatch, redis_fake, celery_fake):
 
     monkeypatch.setattr(Apiagent, "client", redis_fake)
     monkeypatch.setattr(Apiagent, "celery_app", celery_fake)
+
+    with TestClient(app) as test_client:
+        yield test_client
+
+
+@pytest.fixture
+def v2client(monkeypatch, redis_fake, celery_fake):
+    from heavensdoor.app.main import app
+    from heavensdoor.app.routes import StreamingApi as v2
+
+    monkeypatch.setattr(Apiagent, "client", redis_fake)
+    monkeypatch.setattr(Apiagent, "celery_app", celery_fake)
+    monkeypatch.setattr(v2, "redis", redis_fake)
+    monkeypatch.setattr(v2, "celery_app", celery_fake)
+    monkeypatch.setattr(v2.time, "sleep", lambda s: None)  # no real 0.5s waits
 
     with TestClient(app) as test_client:
         yield test_client

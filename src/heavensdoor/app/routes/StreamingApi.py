@@ -75,6 +75,7 @@ async def agent(request: Request, body: AgentRequest):
                 "message": "Duplicate request. Job is already in progress.",
             }
         task = celery_app.send_task("stream", args=(session_id, query))
+        redis.set(f"idem_id:{idempotency_key}", task.id, ex=3600)
         return {
             "Status": "202 Accepted",
             "job_id": task.id,
