@@ -21,6 +21,8 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
+        env:
+                CFLAGS: "-std=gnu99 -Wno-error=incompatible-pointer-types"
         run: uv sync
 
       - name: Check formatting
