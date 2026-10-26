@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         env:
-                CFLAGS: "-Wno-error=incompatible-pointer-types"
+                CFLAGS: "-std=gnu99 -Wno-error=incompatible-pointer-types"
         run: uv sync
 
       - name: Check formatting
