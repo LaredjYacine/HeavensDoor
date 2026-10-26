@@ -19,6 +19,8 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
+        env:
+                CFLAGS: "-Wno-error=incompatible-pointer-types"
         run: uv sync --group dev
 
       - name: Run endpoint tests
