@@ -78,6 +78,8 @@ def HybridRag(
         }
         accepted_jobs = []
         rows = hybridSearch(query)
+        if not rows:
+            return "Job not found "
 
         for row in rows:
             result = matches(row, filters)
@@ -104,8 +106,8 @@ def HybridRag(
             "didnt find any matches for the requirements of the  job   you described "
         )
     except Exception as e:  # noqa: BLE001
-        print("Error occurred on Search tool:", str(e))
-        return f"Error: {e!s}"
+        print("An Error occurred on Search tool:", str(e))
+        return f"An Error occurred on HybridRag  tool:{e!s}"
 
 
 @tool

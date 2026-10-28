@@ -44,7 +44,7 @@ def bm25_function(query_vector: str) -> list[Any]:
     return data.data
 
 
-def hybridSearch(query: str) -> list[Any]:
+def hybridSearch(query: str) -> list[Any] | None:
     # comment :   A main problem in this hybrid search is  the lack of a ranker So
     # i will only fetch little information for now But when ranker is avaialble
     # fetch only the top 5
@@ -53,11 +53,10 @@ def hybridSearch(query: str) -> list[Any]:
     rag_sorted = sorted(rag_results, key=lambda r: r["similarity"], reverse=True)
     bm25_sorted = sorted(bm25_results, key=lambda r: r["score"], reverse=True)
     fused_ids = [rid for rid, _ in rrf([rag_sorted, bm25_sorted])]
-    rows = (
-        supabase_client.table("Jobs")
-        .select("*")
-        .in_("id", fused_ids[::])
-        .execute()
-        .data
-    )
+
+    if not fused_ids:
+        return []
+
+    data = supabase_client.table("Jobs").select("*").in_("id", fused_ids).execute()
+    rows = data.data if data.data else None
     return rows

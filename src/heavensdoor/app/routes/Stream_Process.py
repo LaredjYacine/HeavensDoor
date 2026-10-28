@@ -55,7 +55,7 @@ def streaming(messages, stream_name, job_id):
             message_array.append(ch)
             buffer.append(ch)
             if (
-                ch in " \n\t" or len(buffer) >= 32
+                ch in " \n\t" or len(buffer) >= 128
             ):  # flush at word end, or every 32 chars
                 flush()
     flush()  # leftover part of the last word
@@ -82,8 +82,8 @@ def run_agent_safely(
     llm: CompiledStateGraph,
     name="job-matching-agent",
     session_id=None,
+    agent_memory=None,
     user_id=None,
-    user_session_id=None,
 ):
     query = payload[-1].content if payload else None
 
@@ -101,7 +101,7 @@ def run_agent_safely(
             {"messages": payload},
             version="v3",  # type: ignore
             config={
-                "configurable": {"thread_id": session_id},
+                "configurable": {"thread_id": agent_memory},
                 "recursion_limit": 15,
                 "callbacks": callbacks,
             },  # type: ignore
@@ -114,7 +114,7 @@ def run_agent_safely(
 
 
 @celery_app.task(name="stream", bind=True, max_retries=3, default_retry_delay=1)
-def stream(self, session_id: str, query: str):
+def stream(self, memory: str, query: str):
     try:
         if query is None:
             raise HTTPException(
@@ -131,7 +131,9 @@ def stream(self, session_id: str, query: str):
         print(float(result) > 0.49)
         message = [HumanMessage(query)]
         try:
-            run_agent_safely(message, llm, session_id=self.request.id)
+            run_agent_safely(
+                message, llm, session_id=self.request.id, agent_memory=memory
+            )
 
         except (groq.RateLimitError, groq.BadRequestError, groq.APIStatusError):
             try:
@@ -143,6 +145,7 @@ def stream(self, session_id: str, query: str):
                     fallback_model,
                     name="Fall-Back-Model",
                     session_id=self.request.id,
+                    agent_memory=memory,
                 )
 
             except Exception as e:  # noqa: BLE001 If the Secondary Model prints back an error we Catch it and raise it to the outer layer
