@@ -195,8 +195,6 @@ def v2client(monkeypatch, redis_fake, celery_fake):
     from heavensdoor.app.main import app
     from heavensdoor.app.routes import StreamingApi as v2
 
-    monkeypatch.setattr(Apiagent, "client", redis_fake)
-    monkeypatch.setattr(Apiagent, "celery_app", celery_fake)
     monkeypatch.setattr(v2, "redis", redis_fake)
     monkeypatch.setattr(v2, "celery_app", celery_fake)
     monkeypatch.setattr(v2.time, "sleep", lambda s: None)  # no real 0.5s waits

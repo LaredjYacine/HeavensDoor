@@ -143,7 +143,7 @@ def test_v2_agent_submits_job(v2client, celery_fake, redis_fake):
     assert body["idempotency_key"]
     assert "message" in body
     assert celery_fake.calls[0] == ("stream", ("sess-1", "frontend developer"))
-    assert f"idem_id:{body['idempotency_key']}" in redis_fake.store
+    assert f"idem_id : {body['idempotency_key']}" in redis_fake.store
 
 
 def test_v2_agent_generates_idempotency_key_when_missing(v2client):
@@ -154,7 +154,7 @@ def test_v2_agent_generates_idempotency_key_when_missing(v2client):
 
 
 def test_v2_agent_dedupes_repeated_idempotency_key(v2client, redis_fake):
-    redis_fake.store["idem_id:dup-key"] = "existing-job-id"
+    redis_fake.store["idem_id : dup-key"] = "existing-job-id"
 
     response = v2client.post("/v2/agent", json={**BODY, "idempotency_key": "dup-key"})
 

@@ -54,7 +54,7 @@ def agent(
 
 
 @route.get("/result")
-@limiter.limit("10000/minute")
+@limiter.limit("1000/minute")
 def result(request: Request, job_id: str):
     try:
         data = client.get(f"job_id:{job_id}")

@@ -65,9 +65,9 @@ async def agent(request: Request, body: AgentRequest):
     if not idempotency_key:
         idempotency_key = str(uuid.uuid4())
     try:
-        claimed = redis.set(f"idem_id:{idempotency_key}", "pending", nx=True, ex=3600)
+        claimed = redis.set(f"idem_id : {idempotency_key}", "pending", nx=True, ex=3600)
         if not claimed:
-            job_id = redis.get(f"idem_id:{idempotency_key}")
+            job_id = redis.get(f"idem_id : {idempotency_key}")
             return {
                 "Status": "Duplicate",
                 "job_id": job_id,
@@ -75,7 +75,7 @@ async def agent(request: Request, body: AgentRequest):
                 "message": "Duplicate request. Job is already in progress.",
             }
         task = celery_app.send_task("stream", args=(session_id, query))
-        redis.set(f"idem_id:{idempotency_key}", task.id, ex=3600)
+        redis.set(f"idem_id : {idempotency_key}", task.id, ex=3600)
         return {
             "Status": "202 Accepted",
             "job_id": task.id,

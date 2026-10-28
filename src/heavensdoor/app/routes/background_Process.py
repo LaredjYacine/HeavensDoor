@@ -92,9 +92,11 @@ def agent(self, session_id: str, query: str):
             )
         message = [HumanMessage(query)]
         try:
-            result = run_agent_safely(message, llm, session_id=self.request.id)
+            result = run_agent_safely(message, llm, session_id=session_id)
             output = [
-                pprint.pformat(output.content, indent=2, width=40)
+                pprint.pformat(
+                    output.content, indent=2, width=40
+                )  # to print in the celery terminal For debugging at times
                 for output in reversed(result["messages"])
                 if getattr(output, "type", None) == "ai"
             ]
