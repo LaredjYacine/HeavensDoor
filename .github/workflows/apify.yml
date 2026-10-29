@@ -1,0 +1,28 @@
+name: Apify_Adding
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'  # Runs every 12 hours (at minute 0 of every 12th hour)
+  workflow_dispatch:
+
+jobs:
+  Posting_Job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4            # 1. copy your repo onto the VM
+
+      - uses: astral-sh/setup-uv@v6          # 2. install uv on the VM
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        env:
+                CFLAGS: "-std=gnu99 -Wno-error=incompatible-pointer-types"
+        run: uv sync --no-dev --all-extras   # 3. install your pyproject deps
+
+      - name: Run adding_jobs
+        run: uv run python scripts/Apify.py   # 4. run the job
+        env:                                 # 5. inject credentials
+          supabase_url: ${{ secrets.SUPABASE_URL }}
+          supabase_Key: ${{ secrets.SUPABASE_KEY }}
+          apify: ${{secrets.APIFY}}

@@ -59,4 +59,9 @@ def hybridSearch(query: str) -> list[Any] | None:
 
     data = supabase_client.table("Jobs").select("*").in_("id", fused_ids).execute()
     rows = data.data if data.data else None
-    return rows
+    if not rows:
+        return None
+    row_dict = {row.get("id"): row for row in rows}
+    sorted_rows = [row_dict[rid] for rid in fused_ids if rid in row_dict]
+
+    return sorted_rows

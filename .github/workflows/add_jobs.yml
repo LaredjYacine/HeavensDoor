@@ -16,6 +16,8 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
+        env:
+                CFLAGS: "-std=gnu99 -Wno-error=incompatible-pointer-types"
         run: uv sync --no-dev --all-extras   # 3. install your pyproject deps
 
       - name: Run adding_jobs
