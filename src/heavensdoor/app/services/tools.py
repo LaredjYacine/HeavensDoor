@@ -60,6 +60,7 @@ def HybridRag(
     work_type: str | None = None,
     company: str | None = None,
     role: str | None = None,
+    location: str | None = None,
 ) -> str:
     """Use this to find a job based on the users query ".
 
@@ -75,6 +76,7 @@ def HybridRag(
             "work_type": work_type,
             "company": company,
             "role": role,
+            "location": location,
         }
         accepted_jobs = []
         rows = hybridSearch(query)
@@ -88,6 +90,7 @@ def HybridRag(
                 accepted_jobs.append(
                     {
                         "id": str(row["id"]),
+                        "location": str(row["location"]),
                         "job_name": row.get("job_name"),
                         "company_name": row.get("company"),
                         "role": row.get("role"),

@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
+    "apify-client>=3.4.0",
     "bm25s[full]>=0.3.11",
     "celery>=5.6.3",
     "certifi>=2026.7.22",
