@@ -3,8 +3,9 @@ import os
 import dotenv
 from apify_client import ApifyClient
 from apify_client.errors import RateLimitError
+from supabase import create_client
 
-from heavensdoor.app.services.credentials import create_client
+
 from heavensdoor.app.services.embedmodel import get_embedding_model
 
 embedding_model = get_embedding_model()
