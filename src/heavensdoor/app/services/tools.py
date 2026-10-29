@@ -102,9 +102,7 @@ def HybridRag(
                 )
             continue
         if accepted_jobs:
-            return json.dumps(
-                accepted_jobs[:5], ensure_ascii=False, separators=(",", ":")
-            )
+            return json.dumps(accepted_jobs, ensure_ascii=False, separators=(",", ":"))
         return (
             "didnt find any matches for the requirements of the  job   you described "
         )
