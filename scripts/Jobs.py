@@ -35,6 +35,7 @@ for (
     salary = f"min : {job['minSalary']} . max : {job['maxSalary']}"
     skill_requirement = "".join([skills for skills in job["categories"]])
     job_description = job["description"]
+    job_link = job["applicationLink"]
     embeddings = next(iter(embedder.embed([job_description])))
     expiry_timestamp = job["expiryDate"]
     expiry_date = datetime.fromtimestamp(expiry_timestamp, tz=UTC).isoformat()
@@ -80,7 +81,7 @@ for (
             "skill_requirement": skill_requirement,
             "job_description": job_description,
             "embeddings": embeddings.tolist(),
-            "contact": task_link,
+            "contact": job_link,
             "Expired_at": expiry_date,  # Matches your Supabase timestamptz column
         }
         supabase_client.table("Jobs").insert(payload).execute()
@@ -96,7 +97,9 @@ for (
                 "skill_requirement": task_skill_requirement,
                 "job_description": task_job_description,
                 "embeddings": task_embeddings.tolist(),
-                "Expired_at": task_expiry_date,  # 1 month after pubDate
+                "Expired_at": task_expiry_date,
+                "contact": task_link,
+                # 1 month after pubDate
             }
             supabase_client.table("Jobs").insert(task_payload).execute()
             print("Sucessfully Added Jobicy job to the database")
