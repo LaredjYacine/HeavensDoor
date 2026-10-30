@@ -57,7 +57,7 @@ def stream_result(job_id):
 
 
 @stream_router.post("/agent")
-@limiter.limit("1000/minute")
+@limiter.limit("20/minute")
 async def agent(request: Request, body: AgentRequest):
     idempotency_key = body.idempotency_key
     query = body.query
@@ -82,14 +82,14 @@ async def agent(request: Request, body: AgentRequest):
             "idempotency_key": idempotency_key,
             "message": "Task submitted successfully.",
         }
-    except ValueError as e:
-        return {"Status": "Error Has Occured", "message": str(e)}
     except Exception as e:  # noqa: BLE001
+        # Clean up idempotency key so retries don't get stuck on "pending"
+        redis.delete(f"idem_id : {idempotency_key}")
         return {"Status": "Error", "message": str(e)}
 
 
 @stream_router.get("/result")
-@limiter.limit("1000/minute")
+@limiter.limit("20/minute")
 async def result(request: Request, job_id: str):
     try:
         entries = redis.xrange(job_id, "-", "+")

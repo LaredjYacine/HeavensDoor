@@ -229,6 +229,11 @@ The initial scaling strategy should be query optimization, proper indexing, conn
 If a single database eventually becomes insufficient, read replicas could be introduced for read-heavy workloads. Database sharding could then be considered if a single database still cannot support the required workload.
 
 ---
+# Embedding Models 
+
+One thing i didn't keep in mind was how different the job names can be , I was narrow minded when i set the TextEmbedder as english only  i didn't keep in mind that some jobs can be in French which is something i ran up with when i tried adding algerian jobs  , fortunally i have hybridSearch but it still not enough and i can't run the multilingual text embedder such TextEmbedding("BAAI/bge-m3") because i am on a free trial render 
+
+---
 
 # Failure Modes
 
@@ -241,7 +246,7 @@ If a single database eventually becomes insufficient, read replicas could be int
 | Database overloaded       | Slow queries or failures               | Indexing, pooling, scaling, replicas     |
 | Database unavailable      | Application data unavailable           | Backups / replicas / failover            |
 | Traffic spike             | Queue and latency increase             | Autoscaling + queue                      |
-
+| English TextEmbedder      | Data Misses                            | multilingual TextEmbedder
 ---
 
 # Conclusion

@@ -5,7 +5,6 @@ from apify_client import ApifyClient
 from apify_client.errors import RateLimitError
 from supabase import create_client
 
-
 from heavensdoor.app.services.embedmodel import get_embedding_model
 
 embedding_model = get_embedding_model()
@@ -52,6 +51,16 @@ try:
             skill_parts.extend(item["tags"][:5])
         skill_requirement = ", ".join(skill_parts)
 
+        exist = (
+            supabase_client.table("Jobs")
+            .select("job_description")
+            .eq("job_description", job_description)
+            .limit(1)
+            .execute()
+        )
+        if len(exist.data) > 0:
+            print("already exist")
+            continue
         embedding = next(iter(embedding_model.embed([job_description])))
 
         payload = {
@@ -67,16 +76,6 @@ try:
             "contact": job_link,
             "Expired_at": expiry_date,
         }
-        exist = (
-            supabase_client.table("Jobs")
-            .select("job_description")
-            .eq("job_description", job_description)
-            .limit(1)
-            .execute()
-        )
-        if len(exist.data) > 0:
-            print("already exist")
-            continue
         supabase_client.table("Jobs").insert(payload).execute()
         print(f"Inserted: {payload}")
 except RateLimitError as e:

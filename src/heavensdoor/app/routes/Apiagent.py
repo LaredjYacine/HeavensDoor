@@ -16,7 +16,7 @@ route = APIRouter()
 
 
 @route.post("/agent")
-@limiter.limit("1000/minute")
+@limiter.limit("10/minute")
 def agent(
     request: Request,
     query: str,
@@ -30,11 +30,10 @@ def agent(
             f"idem_id : {idempotency_id}", "pending", nx=True, ex=86400
         )
         if not claimed:
-            job_id = client.get(f"idem_id : {idempotency_id}")
-
+            existing = client.get(f"idem_id : {idempotency_id}")
             return {
                 "status": "Duplicate",
-                "job_id": job_id,
+                "job_id": existing,
                 "idempotency_id": idempotency_id,
                 "message": "Job already submitted before",
             }
@@ -46,32 +45,45 @@ def agent(
             "idempotency_key": idempotency_id,
             "message": "job Submitted go to /result ",
         }
-    except ValueError as e:
-        return {"status": "Error", "message": str(e)}
-
     except Exception as e:  # noqa: BLE001
+        # Clean up idempotency key so retries don't get stuck on "pending"
+        client.delete(f"idem_id : {idempotency_id}")
         return {"status": "Error", "message": str(e)}
 
 
 @route.get("/result")
-@limiter.limit("1000/minute")
+@limiter.limit("10/minute")
 def result(request: Request, job_id: str):
     try:
+        # 1) Fast path: cached response in Redis
         data = client.get(f"job_id:{job_id}")
         if data:
-            data_json = json.loads(data)
-            if data_json:
-                return data_json
-        result = celery_app.AsyncResult(job_id, app=celery_app)
-        if result.ready():
-            print(type(result.result))
-            if isinstance(result.result, list):
-                data = ",".join(result.result)
-        raw_data = {"job_id": job_id, "state": result.state, "result": data}
-        if result.state == "SUCCESS":
-            client.set(f"job_id:{job_id}", json.dumps(raw_data), ex=3600)
-        return raw_data
-    except ValueError as e:
-        return {"status": "Error", "message": str(e)}
+            return json.loads(data)
+
+        # 2) Fallback: ask Celery for the task state
+        task = celery_app.AsyncResult(job_id, app=celery_app)
+        if task.ready():
+            task_result = task.result
+            # Normalise anything Celery may return to a list[str]
+            if isinstance(task_result, list):
+                output = task_result
+            elif isinstance(task_result, str):
+                output = [task_result]
+            elif task_result is None:
+                output = []
+            else:
+                output = [str(task_result)]
+
+            state = task.state
+            if state == "SUCCESS":
+                raw_data = {"job_id": job_id, "state": state, "result": output}
+                client.set(f"job_id:{job_id}", json.dumps(raw_data), ex=3600)
+                return raw_data
+
+            return {"job_id": job_id, "state": state, "result": output}
+
+        # 3) Still running
+        return {"job_id": job_id, "state": "PENDING", "result": []}
+
     except Exception as e:  # noqa: BLE001
         return {"status": "Error", "message": str(e)}
