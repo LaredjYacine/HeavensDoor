@@ -66,6 +66,9 @@ class FakeRedis:
     def get(self, key):
         return self.store.get(key)
 
+    def delete(self, key):
+        self.store.pop(key, None)
+
     def rpush(self, *args):
         return 1
 
