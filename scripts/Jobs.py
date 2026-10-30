@@ -28,17 +28,8 @@ for (
 ) in zip(data["jobs"], Jobicy_Jobs["jobs"]):
     # -------- for Himalayas api --------------------------------
 
-    job_name = job["title"]
-    role = "".join([seniority for seniority in job["seniority"]])
-    company = job["companyName"]
-    work_type = job["employmentType"]
-    salary = f"min : {job['minSalary']} . max : {job['maxSalary']}"
-    skill_requirement = "".join([skills for skills in job["categories"]])
     job_description = job["description"]
-    job_link = job["applicationLink"]
-    embeddings = next(iter(embedder.embed([job_description])))
-    expiry_timestamp = job["expiryDate"]
-    expiry_date = datetime.fromtimestamp(expiry_timestamp, tz=UTC).isoformat()
+
     exist = (
         supabase_client.table("Jobs")
         .select("job_description")
@@ -48,17 +39,7 @@ for (
     )
 
     # --------------- for Jobicy -----------------------------------------
-    task_name = task["jobTitle"]
-    task_role = task.get("jobLevel", "")
-    task_company = task["companyName"]
-    task_work_type = "".join([type for type in task["jobType"]])
-    task_skill_requirement = "".join([skill for skill in task.get("jobIndustry", "")])
     task_job_description = task["jobDescription"]
-    task_link = task["url"]
-    task_embeddings = next(iter(embedder.embed([task_job_description])))
-    # Expiry date: 1 month after Jobicy's pubDate string
-    pub_date = datetime.fromisoformat(task["pubDate"])
-    task_expiry_date = (pub_date + relativedelta(months=1)).isoformat()
 
     task_exist = (
         supabase_client.table("Jobs")
@@ -68,27 +49,53 @@ for (
         .execute()
     )
 
-    if len(exist.data) > 0:
-        print("already exist")
-        continue
     try:
-        payload = {
-            "job_name": job_name,
-            "role": role,
-            "company": company,
-            "work_type": work_type,
-            "salary": salary,
-            "skill_requirement": skill_requirement,
-            "job_description": job_description,
-            "embeddings": embeddings.tolist(),
-            "contact": job_link,
-            "Expired_at": expiry_date,  # Matches your Supabase timestamptz column
-        }
-        supabase_client.table("Jobs").insert(payload).execute()
-        print("Sucessfully Added Himalaya job to the database")
+        if len(exist.data) > 0:
+            print("already exist")
+
+        else:
+            job_name = job["title"]
+            role = ",".join([seniority for seniority in job["seniority"]])
+            company = job["companyName"]
+            work_type = job["employmentType"]
+            salary = f"min : {job['minSalary']} . max : {job['maxSalary']}"
+            skill_requirement = ",".join([skills for skills in job["categories"]])
+            job_link = job["applicationLink"]
+
+            expiry_timestamp = job["expiryDate"]
+            expiry_date = datetime.fromtimestamp(expiry_timestamp, tz=UTC).isoformat()
+            embeddings = next(iter(embedder.embed([job_description])))
+
+            payload = {
+                "job_name": job_name,
+                "role": role,
+                "company": company,
+                "work_type": work_type,
+                "salary": salary,
+                "skill_requirement": skill_requirement,
+                "job_description": job_description,
+                "embeddings": embeddings.tolist(),
+                "contact": job_link,
+                "Expired_at": expiry_date,  # Matches your Supabase timestamptz column
+            }
+            supabase_client.table("Jobs").insert(payload).execute()
+            print("Sucessfully Added Himalaya job to the database")
         if len(task_exist.data) > 0:
             print("already exist")
         else:
+            task_name = task["jobTitle"]
+            task_role = task.get("jobLevel", "")
+            task_company = task["companyName"]
+            task_work_type = ",".join([type for type in task["jobType"]])
+            task_skill_requirement = ",".join(
+                [skill for skill in task.get("jobIndustry", "")]
+            )
+            task_link = task["url"]
+
+            # Expiry date: 1 month after Jobicy's pubDate string
+            pub_date = datetime.fromisoformat(task["pubDate"])
+            task_expiry_date = (pub_date + relativedelta(months=1)).isoformat()
+            task_embeddings = next(iter(embedder.embed([task_job_description])))
             task_payload = {
                 "job_name": task_name,
                 "role": task_role,

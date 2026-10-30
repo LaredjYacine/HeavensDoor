@@ -16,7 +16,7 @@ route = APIRouter()
 
 
 @route.post("/agent")
-@limiter.limit("1000/minute")
+@limiter.limit("10/minute")
 def agent(
     request: Request,
     query: str,
@@ -30,11 +30,10 @@ def agent(
             f"idem_id : {idempotency_id}", "pending", nx=True, ex=86400
         )
         if not claimed:
-            job_id = client.get(f"idem_id : {idempotency_id}")
+            # job_id = client.get(f"idem_id : {idempotency_id}")
 
             return {
                 "status": "Duplicate",
-                "job_id": job_id,
                 "idempotency_id": idempotency_id,
                 "message": "Job already submitted before",
             }
@@ -54,7 +53,7 @@ def agent(
 
 
 @route.get("/result")
-@limiter.limit("1000/minute")
+@limiter.limit("10/minute")
 def result(request: Request, job_id: str):
     try:
         data = client.get(f"job_id:{job_id}")

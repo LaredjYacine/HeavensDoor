@@ -57,7 +57,7 @@ def stream_result(job_id):
 
 
 @stream_router.post("/agent")
-@limiter.limit("1000/minute")
+@limiter.limit("10/minute")
 async def agent(request: Request, body: AgentRequest):
     idempotency_key = body.idempotency_key
     query = body.query
@@ -89,7 +89,7 @@ async def agent(request: Request, body: AgentRequest):
 
 
 @stream_router.get("/result")
-@limiter.limit("1000/minute")
+@limiter.limit("10/minute")
 async def result(request: Request, job_id: str):
     try:
         entries = redis.xrange(job_id, "-", "+")
