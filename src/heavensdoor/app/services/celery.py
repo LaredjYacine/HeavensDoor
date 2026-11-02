@@ -13,7 +13,7 @@ celery_app = Celery(
     backend=redisurl,
     worker_pool="solo",
     include=[
-        "heavensdoor.app.routes.background_Process",
-        "heavensdoor.app.routes.Stream_Process",
+        "heavensdoor.app.routes.background_process",
+        "heavensdoor.app.routes.stream_process",
     ],
 )

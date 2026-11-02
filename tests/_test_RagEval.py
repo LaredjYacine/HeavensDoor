@@ -18,7 +18,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from heavensdoor.app.services.Search_function import hybridSearch
+from heavensdoor.app.services.search_function import hybridSearch
 
 dotenv.load_dotenv()
 dataset = EvaluationDataset()

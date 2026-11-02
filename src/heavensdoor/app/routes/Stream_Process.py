@@ -20,9 +20,9 @@ from upstash_redis import Redis
 from ..services.agent import fallback_model, llm
 from ..services.celery import celery_app
 from ..services.langfuse_setup import start_agent_trace
-from ..services.Logger import JsonLlmLogger
-from ..services.PromptModel import evaluate_response
-from ..services.SSL_fix import Finetuned
+from ..services.logger import JsonLlmLogger
+from ..services.prompt_model import evaluate_response
+from ..services.ssl_fix import Finetuned
 
 client = Redis.from_env()
 
