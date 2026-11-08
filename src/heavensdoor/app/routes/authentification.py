@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from postgrest.exceptions import APIError
 from pydantic import BaseModel, EmailStr
 from supabase_auth.errors import AuthApiError, AuthInvalidCredentialsError
+from supabase_auth.types import User
 
 from ..services.credentials import supabase_client
 
@@ -33,33 +34,33 @@ class SignInSchema(BaseModel):
     password: str
 
 
-def get_current_user(token: str = Depends(oauth2_schema)):
+async def get_current_user(token: str = Depends(oauth2_schema)):
+    print(f"Token received: {token[:20]}..." if token else "No token")
 
     try:
         response = supabase_client.auth.get_user(token)
-        if not response:
+        if response is None or response.user is None:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User cant be found "
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
             )
-        user = response.user
-        if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User cant be found "
-            )
-
-        return {"status": "SUCCESS", "data": user}
-    except AuthApiError as e:
-        return {"status": "FAILED", "error": e}
+        return response.user
+    except (AuthApiError, AuthInvalidCredentialsError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
-currentUser = Annotated[dict, Depends(get_current_user)]
+currentUser = Annotated[User, Depends(get_current_user)]
 
 
 @auth.post("/apply_candidate")
 def apply_candidate(candidate_info: CandidateSchema, currentuser: currentUser):
     try:
-        id = currentuser.get("id")
-        print("this is the currentuser", currentuser)
+        id = currentuser.id
         user_data = candidate_info.model_dump()
         payload = {
             "Id": id,  # Or whatever your foreign key column name is in the Candidates table (e.g., "user_id")
@@ -97,13 +98,18 @@ async def login(userData: Annotated[OAuth2PasswordRequestForm, Depends()]):
         response = supabase_client.auth.sign_in_with_password(
             {"email": userData.username, "password": userData.password}
         )
+        if not response:
+            raise AuthInvalidCredentialsError("Couldn't return a resposne")
         return {
-            "message": "Login was  successful.",
+            "access_token": response.session.access_token
+            if response.session
+            else None,  # <-- Swagger UI needs this
+            "token_type": "bearer",
             "user": response.user,
             "session": response.session,
+            "message": "Login was successful.",
         }
     except AuthApiError:
-        # This catches incorrect passwords or missing accounts
         raise HTTPException(status_code=400, detail="Invalid email or password.")
     except AuthInvalidCredentialsError as e:
-        raise HTTPException(status_code=400, detail=e)
+        raise HTTPException(status_code=400, detail=str(e))
