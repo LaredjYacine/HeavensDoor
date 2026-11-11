@@ -1,3 +1,4 @@
+from datetime import UTC, date, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -8,9 +9,10 @@ from supabase_auth.errors import AuthApiError, AuthInvalidCredentialsError
 from supabase_auth.types import User
 
 from ..services.credentials import supabase_client
+from ..services.embedmodel import get_embedding_model
 
 auth = APIRouter(prefix="/auth")
-
+embedder = get_embedding_model()
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
@@ -61,13 +63,56 @@ currentUser = Annotated[User, Depends(get_current_user)]
 def apply_candidate(candidate_info: CandidateSchema, currentuser: currentUser):
     try:
         id = currentuser.id
+        data = (
+            supabase_client.table("UsersCooldown")
+            .select("Expired")
+            .eq("id", id)
+            .execute()
+        )
+        exist = data.data
+        print(data)
+        if exist and exist[0].get("Expired"):
+            expired_str = str(exist[0].get("Expired"))
+            expiration_date = date.fromisoformat(expired_str[:10])
+            now = datetime.now(UTC).date()
+            remaining_time = expiration_date - now
+
+            days_left = remaining_time.days
+
+            hours_left = remaining_time.seconds // 3600
+
+            raise HTTPException(
+                status_code=400,
+                detail=f"You must wait {days_left} days and {hours_left} hours  ",
+            )
+
         user_data = candidate_info.model_dump()
+        if not user_data:
+            raise HTTPException(status_code=400, detail="User data must not be empty ")
+        embeded_fields = [
+            str(user_data.get("skills")),
+            str(user_data.get("education_institutions")),
+            str(user_data.get("professional_comapany_names")),
+            str(user_data.get("prefered_job_role")),
+            str(user_data.get("job_position_name")),
+            str(user_data.get("is_remote_eligible")),
+            str(user_data.get("certification_skills")),
+            str(user_data.get("certification_providers")),
+        ]
+        text_to_embed = " ".join(f for f in embeded_fields if f.strip())
         payload = {
             "Id": id,  # Or whatever your foreign key column name is in the Candidates table (e.g., "user_id")
             **user_data,
+            "Embeddings": next(iter(embedder.embed([text_to_embed]))).tolist(),
         }
+
         response = supabase_client.table("Candidates").insert(payload).execute()
-        return {"message": "Application submitted successfully", "data": response.data}
+        response2 = supabase_client.table("UsersCooldown").insert({"id": id}).execute()
+        print(response2.data)
+        return {
+            "message": "Application submitted successfully for 1 day ",
+            "data": response.data,
+        }
     except APIError as e:
         raise HTTPException(
             status_code=400, detail=f"failed Adding the User as a Candidate {e}"
