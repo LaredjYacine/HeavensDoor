@@ -2,7 +2,7 @@ from datetime import UTC, date, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from postgrest.exceptions import APIError
 from pydantic import BaseModel, EmailStr
 from supabase_auth.errors import AuthApiError, AuthInvalidCredentialsError
@@ -36,7 +36,7 @@ class SignInSchema(BaseModel):
     password: str
 
 
-async def get_current_user(token: str = Depends(oauth2_schema)):
+def get_current_user(token: str = Depends(oauth2_schema)):
     print(f"Token received: {token[:20]}..." if token else "No token")
 
     try:
@@ -123,8 +123,15 @@ def apply_candidate(candidate_info: CandidateSchema, currentuser: currentUser):
 def sign_up(userData: SignInSchema):
     try:
         response = supabase_client.auth.sign_up(
-            {"email": userData.email, "password": userData.password}
+            {
+                "email": userData.email,
+                "password": userData.password,
+            }
         )
+        if response.user and not response.user.identities:
+            raise HTTPException(
+                status_code=400, detail="An account with this email already exists."
+            )
         return {
             "message": "Sign-up successful. Check your email for confirmation if enabled.",
             "user": response.user,
@@ -138,10 +145,12 @@ def sign_up(userData: SignInSchema):
 
 
 @auth.post("/login")
-async def login(userData: Annotated[OAuth2PasswordRequestForm, Depends()]):
+async def login(
+    userData: SignInSchema,
+):  # Annotated[OAuth2PasswordRequestForm, Depends()]):
     try:
         response = supabase_client.auth.sign_in_with_password(
-            {"email": userData.username, "password": userData.password}
+            {"email": userData.email, "password": userData.password}
         )
         if not response:
             raise AuthInvalidCredentialsError("Couldn't return a resposne")
@@ -158,3 +167,8 @@ async def login(userData: Annotated[OAuth2PasswordRequestForm, Depends()]):
         raise HTTPException(status_code=400, detail="Invalid email or password.")
     except AuthInvalidCredentialsError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@auth.get("/me")
+def get_me(current_user: currentUser):
+    return {"user": current_user}
