@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <title>Apply as Candidate — Heaven's Door</title>
+    <link rel="icon" type="image/png" href="/static/icon.png">
+    <link rel="stylesheet" href="/static/Front.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .apply-card {
+            background: rgba(255, 255, 255, 0.055);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            padding: 2rem 2.5rem;
+            max-width: 500px;
+            margin: 2rem auto;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .apply-card h2 {
+            font-family: 'Anton', Impact, sans-serif;
+            font-weight: 400;
+            font-size: 2rem;
+            letter-spacing: 0.05em;
+            color: #fff68f;
+            margin: 0 0 1.5rem;
+            text-align: center;
+        }
+        .apply-card label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.82rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #fff68f;
+        }
+        .apply-card input,
+        .apply-card select,
+        .apply-card textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1rem;
+        }
+        .apply-card input:focus,
+        .apply-card select:focus,
+        .apply-card textarea:focus {
+            outline: none;
+            border-color: #fff68f;
+        }
+        .apply-card button {
+            width: 100%;
+            padding: 0.85rem 2rem;
+            background: transparent;
+            border: 1px solid #FFF68F;
+            color: #FFF68F;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+        .apply-card button:hover {
+            background-color: #FFF68F;
+            color: #1A1A1A;
+        }
+        .apply-card button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .apply-card .error {
+            color: #f87171;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 0.75rem;
+            display: none;
+        }
+        .apply-card .success {
+            color: #4ade80;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 0.75rem;
+            display: none;
+        }
+        .apply-card p {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #9d97b4;
+            margin-top: 1.5rem;
+        }
+        .apply-card a {
+            color: #fff68f;
+            text-decoration: none;
+        }
+        .apply-card a:hover {
+            text-decoration: underline;
+        }
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #334155;
+            border-top-color: #fff68f;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 0.5rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a class="about-link" href="/about">About</a>
+        <a class="about-link" id="linkLogin" href="/auth/login">Login</a>
+        <a class="about-link" id="linkSignup" href="/auth/signup">Sign up</a>
+        <div id="auth-user" class="auth-user-container" style="display:none;">
+            <span id="user-email" class="user-email"></span>
+            <div class="user-dropdown">
+                <a href="/apply-candidate">Apply as Candidate</a>
+                <hr>
+                <button id="logoutBtn">Logout</button>
+            </div>
+        </div>
+        <div class="brand">
+            <img class="brand-logo" src="/static/icon.png" alt="Heaven's Door logo">
+            <h1>Heaven's Door</h1>
+        </div>
+    </header>
+
+    <div class="apply-card">
+        <h2>Apply as Candidate</h2>
+        <form id="applyForm">
+            <label for="skills">Skills</label>
+            <input type="text" id="skills" required placeholder="e.g. Python, React, AWS">
+
+            <label for="prefered_job_role">Preferred Job Role</label>
+            <input type="text" id="prefered_job_role" required placeholder="e.g. Software Engineer">
+
+            <label for="location">Location</label>
+            <input type="text" id="location" required placeholder="e.g. Algiers, DZ">
+
+            <label for="work_type">Work Type</label>
+            <select id="work_type">
+                <option value="Full-Time">Full-Time</option>
+                <option value="Part-Time">Part-Time</option>
+                <option value="Contract">Contract</option>
+                <option value="Remote">Remote</option>
+            </select>
+
+            <label for="experience_years">Experience (Years)</label>
+            <input type="text" id="experience_years" placeholder="e.g. 3 To 5 Ans">
+
+            <label for="education_levels">Education Level</label>
+            <input type="text" id="education_levels" placeholder="e.g. Licence (LMD), Bac + 3">
+
+            <label for="certification_skills">Certification Skills</label>
+            <input type="text" id="certification_skills" placeholder="e.g. AWS, Azure">
+
+            <label for="certification_providers">Certification Providers</label>
+            <input type="text" id="certification_providers" placeholder="e.g. Coursera, Udemy">
+
+            <label for="job_position_name">Job Position Name</label>
+            <input type="text" id="job_position_name" placeholder="e.g. Senior Developer">
+
+            <label for="languages">Languages</label>
+            <input type="text" id="languages" placeholder="e.g. English, French, Arabic">
+
+            <label for="is_remote_eligible">Remote Eligible</label>
+            <select id="is_remote_eligible">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+
+            <div class="spinner"></div>
+            <button type="submit" id="applyBtn">Submit Application</button>
+            <div id="applyError" class="error"></div>
+            <div id="applySuccess" class="success"></div>
+        </form>
+        <p>Already applied? <a href="/">Back to chat</a></p>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = '/auth/login';
+        }
+
+        document.getElementById('applyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('applyBtn');
+            const spinner = document.querySelector('.spinner');
+            const error = document.getElementById('applyError');
+            const success = document.getElementById('applySuccess');
+
+            error.style.display = 'none';
+            success.style.display = 'none';
+            btn.disabled = true;
+            spinner.style.display = 'block';
+
+            const isRemote = document.getElementById('is_remote_eligible').value === 'true';
+
+            try {
+                const res = await fetch('/auth/apply_candidate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        skills: document.getElementById('skills').value,
+                        degrees: '',
+                        education_institutions: document.getElementById('education_levels').value,
+                        professional_comapany_names: '',
+                        certification_skills: document.getElementById('certification_skills').value,
+                        certification_providers: document.getElementById('certification_providers').value,
+                        job_position_name: document.getElementById('job_position_name').value,
+                        prefered_job_role: document.getElementById('prefered_job_role').value,
+                        languages: document.getElementById('languages').value,
+                        location: document.getElementById('location').value,
+                        is_remote_eligible: isRemote,
+                        Name: document.getElementById('job_position_name').value,
+                    }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.detail || 'Application failed');
+
+                success.style.display = 'block';
+                success.textContent = 'Application submitted successfully!';
+                document.getElementById('applyForm').reset();
+            } catch (err) {
+                error.style.display = 'block';
+                error.textContent = err.message;
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

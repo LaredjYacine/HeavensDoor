@@ -1,4 +1,5 @@
 import json
+import pprint
 import time
 
 import groq
@@ -8,7 +9,6 @@ from fastapi import HTTPException, status
 from huggingface_hub.errors import BadRequestError, HfHubHTTPError
 from langchain.messages import HumanMessage
 from langgraph.errors import GraphRecursionError
-from langgraph.graph.state import CompiledStateGraph
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -20,51 +20,21 @@ from upstash_redis import Redis
 from ..services.agent import fallback_model, llm
 from ..services.celery import celery_app
 from ..services.langfuse_setup import start_agent_trace
-from ..services.Logger import JsonLlmLogger
-from ..services.PromptModel import evaluate_response
-from ..services.SSL_fix import Finetuned
+from ..services.logger import JsonLlmLogger
+from ..services.ssl_fix import Finetuned
 
 client = Redis.from_env()
 
 
-def redisStreaming(job_id: str, token: str, done, stream_Name):
-    message_id = client.xadd(
-        key=job_id,
-        id="*",
-        data={"token": token, "done": done},
-        maxlen=1000,
-        approximate_trim=True,
-    )
-    client.expire(job_id, 3600)
-    print(f"Successfully stored token with ID: {message_id}")
-
-
-def streaming(messages, stream_name, job_id):
-    buffer: list[str] = []
-    message_array = []
-
-    def flush():
-        if buffer:
-            redisStreaming(job_id, "".join(buffer), False, stream_name)
-            buffer.clear()
-
-    for chunk in messages.messages:
-        for ch in chunk.text:
-            if not ch:
-                continue
-            message_array.append(ch)
-            buffer.append(ch)
-            if (
-                ch in " \n\t" or len(buffer) >= 128
-            ):  # flush at word end, or every 32 chars
-                flush()
-    flush()  # leftover part of the last word
-    redisStreaming(job_id, "", True, stream_name)
-    return message_array
-
-
 class FallbackModelUnavailableError(RuntimeError):
     """The hosted fine-tuned fallback model could not be reached or loaded."""
+
+
+def streaming(messages):
+    for chunk in messages:
+        if chunk.get("type") == "messages":
+            message, _ = chunk["data"]
+            yield message.content
 
 
 @retry(
@@ -79,11 +49,11 @@ class FallbackModelUnavailableError(RuntimeError):
 )
 def run_agent_safely(
     payload,
-    llm: CompiledStateGraph,
+    llm,
     name="job-matching-agent",
     session_id=None,
-    agent_memory=None,
     user_id=None,
+    user_session_id=None,
 ):
     query = payload[-1].content if payload else None
 
@@ -97,57 +67,57 @@ def run_agent_safely(
         callbacks = [JsonLlmLogger()]
         if trace["handler"] is not None:
             callbacks.insert(0, trace["handler"])
-        result = llm.stream_events(
-            {"messages": payload},
-            version="v3",  # type: ignore
+        result = llm.invoke(
+            {"messages": payload},  # type: ignore
             config={
-                "configurable": {"thread_id": agent_memory},
+                "configurable": {"thread_id": session_id},
                 "recursion_limit": 15,
                 "callbacks": callbacks,
             },  # type: ignore
         )  # type: ignore
-        array = streaming(result, name, session_id)
-        last = " ".join(array)
+
         if trace["span"] is not None:
-            trace["span"].update(output={"response": last})
-        return last
+            last = result["messages"][-1]
+            output = last.content if hasattr(last, "content") else str(last)
+            trace["span"].update(output={"response": output})
+        return result
 
 
-@celery_app.task(name="stream", bind=True, max_retries=3, default_retry_delay=1)
-def stream(self, memory: str, query: str):
+@celery_app.task(name="agent", bind=True, max_retries=3, default_retry_delay=1)
+def agent(self, session_id: str, query: str):
     try:
         if query is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="query must not be None"
             )
-
-        result = str(evaluate_response(str(query)))
-        if float(result) > 0.49:
-            print(result)
-            print(float(result))
-            return ["i cannot help you with this task "]
-        print("testiojng")
-        print(float(result))
-        print(float(result) > 0.49)
         message = [HumanMessage(query)]
         try:
-            run_agent_safely(
-                message, llm, session_id=self.request.id, agent_memory=memory
-            )
-
+            result = run_agent_safely(message, llm, session_id=session_id)
+            output = [
+                pprint.pformat(
+                    output.content, indent=2, width=40
+                )  # to print in the celery terminal For debugging at times
+                for output in reversed(result["messages"])
+                if getattr(output, "type", None) == "ai"
+            ]
+            return output
         except (groq.RateLimitError, groq.BadRequestError, groq.APIStatusError):
             try:
                 print(
                     "\n *************** IN THE RATE LIMIT EXCEPT ERROR ************** \n"
                 )
-                run_agent_safely(
+                result = run_agent_safely(
                     message,
                     fallback_model,
                     name="Fall-Back-Model",
                     session_id=self.request.id,
-                    agent_memory=memory,
                 )
-
+                output = [
+                    pprint.pformat(output.content, indent=2, width=40)
+                    for output in reversed(result["messages"])
+                    if getattr(output, "type", None) == "ai"
+                ]
+                return output
             except Exception as e:  # noqa: BLE001 If the Secondary Model prints back an error we Catch it and raise it to the outer layer
                 raise FallbackModelUnavailableError(
                     {
@@ -183,7 +153,7 @@ def stream(self, memory: str, query: str):
             "time": time.time(),
             "error": str(e),
         }
-        client.rpush("dlq:stream", json.dumps(dlq))
+        client.rpush("dlq:agent", json.dumps(dlq))
         print({"status": "failed", "moved_to_dlq": True, "error": str(e)})
         return [
             "couldnt fulfill your request at the current time, please try again later"

@@ -12,11 +12,24 @@
 </head>
 <body>
 	<header class="topbar">
-		<a class="about-link" href="/about">About</a>
-		<div class="brand">
-			<img class="brand-logo" src="/static/icon.png" alt="Heaven's Door logo">
+		        <a class="about-link" href="/about">About</a>
+		        <a class="auth-user-container" style="margin-right: 6rem;" id="linkLogin" href="/auth/login">Login</a>
+		        <a class="auth-user-container" id="linkSignup" href="/auth/signup">Sign up</a>
+
+		        <div class="brand">
+										<a href="/" class="icon-link">
+			<img class="brand-logo" src="/static/icon.png"  alt="Heaven's Door logo">
+										</a>
 			<h1>Heaven's Door</h1>
 		</div>
+  <div id="auth-user" class="auth-user-container" style="display:none;">
+      <span id="user-email" class="user-email"></span>
+      <div class="user-dropdown">
+          <a href="/apply-candidate">Apply as Candidate</a>
+          <hr>
+          <button id="logoutBtn">Logout</button>
+      </div>
+  </div>
 	</header>
 
 	<main id="chat" aria-live="polite"></main>
@@ -30,5 +43,39 @@
 	<script>window.BACKEND_URL = "__BACKEND_URL__";</script>
 	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 	<script src="/static/Streaming.js"></script>
+
+<script>
+    const token = localStorage.getItem('access_token');
+    const linkLogin = document.getElementById('linkLogin');
+    const linkSignup = document.getElementById('linkSignup');
+    const authUser = document.getElementById('auth-user');
+    const userEmail = document.getElementById('user-email');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    if (token) {
+        linkLogin.style.display = 'none';
+        linkSignup.style.display = 'none';
+        authUser.style.display = 'flex';
+
+        fetch('/auth/me', {
+            headers: { 'Authorization': `Bearer ${token}` },
+        })
+            .then(async (res) => {
+                if (!res.ok) throw new Error('Not authenticated');
+                const data = await res.json();
+                const user = data.user;
+                userEmail.textContent = user.email || user.user_metadata?.email || 'User';
+            })
+            .catch(() => {
+                localStorage.removeItem('access_token');
+                window.location.href = '/auth/login';
+            });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('access_token');
+            window.location.href = '/';
+        });
+    }
+</script>
 </body>
 </html>

@@ -84,7 +84,8 @@ body {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.about-link:hover {
+.about-link:hover,
+.auth-user-container:hover {
     background-color: #FFF68F;
     color: #1A1A1A;
 }
@@ -368,4 +369,80 @@ body {
     #chat {
         padding: 5px;
     }
+}
+
+/* =========================
+   AUTH TOPBAR SPACING
+   ========================= */
+
+.topbar {
+    gap: 1rem;
+    align-items: center;
+}
+.auth-user {
+    margin-right: 1.4 rem;
+}
+.auth-user-container {
+    position: absolute;
+    top: 1.4rem;
+    right: 7rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #FFF68F;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 246, 143, 0.45);
+    border-radius: 999px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.user-email {
+    color: #fff68f;
+    font-size: 0.85rem;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 110%;
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 0.75rem;
+    min-width: 140px;
+    z-index: 50;
+    flex-direction: column;
+}
+
+.auth-user-container:hover .user-dropdown {
+    display: flex;
+}
+
+.user-dropdown a,
+.user-dropdown button {
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 0.85rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.user-dropdown a:hover,
+.user-dropdown button:hover {
+    background: rgba(255, 246, 143, 0.1);
+    color: #fff68f;
+}
+
+.user-dropdown hr {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0.5rem 0;
 }

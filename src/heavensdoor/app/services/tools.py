@@ -6,8 +6,8 @@ from difflib import SequenceMatcher
 from langchain.tools import tool
 
 from .credentials import supabase_client
-from .Search_function import hybridSearch
-from .SSL_fix import Finetuned
+from .search_function import hybridSearch
+from .ssl_fix import Finetuned
 
 
 def norm(s: str) -> str:

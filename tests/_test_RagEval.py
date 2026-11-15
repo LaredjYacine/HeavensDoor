@@ -18,7 +18,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from heavensdoor.app.services.Search_function import hybridSearch
+from heavensdoor.app.services.search_function import hybridSearch
 
 dotenv.load_dotenv()
 dataset = EvaluationDataset()
@@ -82,6 +82,9 @@ def llm_response(context: str, query: str) -> str:
     return str(response.content)
 
 
+# this is for the test evaluations
+
+
 @pytest.mark.parametrize("golden", dataset.goldens[:10])
 def test_evaluation(golden, monkeypatch):
 
@@ -89,7 +92,7 @@ def test_evaluation(golden, monkeypatch):
     context = [
         str(doc.get("content"))
         for doc in docs
-        if isinstance(doc, dict) and doc.get("content") is not None
+        if doc and isinstance(doc, dict) and doc.get("content") is not None
     ]
     text = "|".join(context)
     substitute_key = os.getenv("Test_Key")  # This will be used to generate LLM response

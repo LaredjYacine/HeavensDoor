@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <title>Confirm email — Heaven's Door</title>
+    <link rel="icon" type="image/png" href="/static/icon.png">
+    <link rel="stylesheet" href="/static/Front.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-card {
+            background: rgba(255, 255, 255, 0.055);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            padding: 3rem 2.5rem;
+            max-width: 400px;
+            margin: 4rem auto;
+            font-family: 'Inter', system-ui, sans-serif;
+            text-align: center;
+        }
+        .auth-card h2 {
+            font-family: 'Anton', Impact, sans-serif;
+            font-weight: 400;
+            font-size: 2rem;
+            letter-spacing: 0.05em;
+            color: #fff68f;
+            margin: 0 0 1rem;
+        }
+        .auth-card p {
+            color: #eae6f2;
+            font-size: 1rem;
+            margin: 0 0 2rem;
+        }
+        .auth-card button {
+            padding: 0.85rem 2rem;
+            background: transparent;
+            border: 1px solid #FFF68F;
+            color: #FFF68F;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+        .auth-card button:hover {
+            background-color: #FFF68F;
+            color: #1A1A1A;
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a class="about-link" href="/about">About</a>
+        <div class="brand">
+            <img class="brand-logo" src="/static/icon.png" alt="Heaven's Door logo">
+            <h1>Heaven's Door</h1>
+        </div>
+    </header>
+
+    <div class="auth-card">
+        <h2>Email confirmed successfully</h2>
+        <p>Your email has been verified. You can now sign in.</p>
+        <button onclick="window.location.href='/auth/login'">Go to login</button>
+    </div>
+</body>
+</html>

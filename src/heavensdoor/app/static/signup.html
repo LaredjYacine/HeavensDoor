@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <title>Sign up — Heaven's Door</title>
+    <link rel="icon" type="image/png" href="/static/icon.png">
+    <link rel="stylesheet" href="/static/Front.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-card {
+            background: rgba(255, 255, 255, 0.055);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            padding: 2rem 2.5rem;
+            max-width: 400px;
+            margin: 2rem auto;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .auth-card h2 {
+            font-family: 'Anton', Impact, sans-serif;
+            font-weight: 400;
+            font-size: 2rem;
+            letter-spacing: 0.05em;
+            color: #fff68f;
+            margin: 0 0 1.5rem;
+            text-align: center;
+        }
+        .auth-card label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.82rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #fff68f;
+        }
+        .auth-card input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1rem;
+        }
+        .auth-card input:focus {
+            outline: none;
+            border-color: #fff68f;
+        }
+        .auth-card button {
+            width: 100%;
+            padding: 0.85rem 2rem;
+            background: transparent;
+            border: 1px solid #FFF68F;
+            color: #FFF68F;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            margin-top: 0.5rem;
+        }
+        .auth-card button:hover {
+            background-color: #FFF68F;
+            color: #1A1A1A;
+        }
+        .auth-card button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .auth-card .error {
+            color: #f87171;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 0.75rem;
+            display: none;
+        }
+        .auth-card .success {
+            color: #4ade80;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 0.75rem;
+            display: none;
+        }
+        .auth-card p {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #9d97b4;
+            margin-top: 1.5rem;
+        }
+        .auth-card a {
+            color: #fff68f;
+            text-decoration: none;
+        }
+        .auth-card a:hover {
+            text-decoration: underline;
+        }
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #334155;
+            border-top-color: #fff68f;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 0.5rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a class="about-link" href="/about">About</a>
+        <div class="brand">
+      						<a href="/" class="icon-link">
+			<img class="brand-logo" src="/static/icon.png"  alt="Heaven's Door logo">
+										</a>
+            <h1>Heaven's Door</h1>
+        </div>
+    </header>
+
+    <div class="auth-card">
+        <h2>Create account</h2>
+        <form id="signupForm">
+            <label for="email">Email</label>
+            <input type="email" id="email" required placeholder="you@example.com">
+
+            <label for="password">Password</label>
+            <input type="password" id="password" required minlength="6" placeholder="••••••••">
+
+            <div class="spinner"></div>
+            <button type="submit" id="signupBtn">Create account</button>
+            <div id="signupError" class="error"></div>
+            <div id="signupSuccess" class="success"></div>
+        </form>
+        <p>Already have an account? <a href="/auth/login">Sign in</a></p>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('signupBtn');
+            const spinner = document.querySelector('.spinner');
+            const error = document.getElementById('signupError');
+            const success = document.getElementById('signupSuccess');
+
+            error.style.display = 'none';
+            success.style.display = 'none';
+            btn.disabled = true;
+            spinner.style.display = 'block';
+
+            try {
+                const res = await fetch('/auth/sign_up', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value,
+                    }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.detail || 'Sign up failed');
+
+                success.style.display = 'block';
+                success.textContent = 'Account created. Check your email to confirm, then sign in.';
+
+            } catch (err) {
+                error.style.display = 'block';
+                error.textContent = err.message;
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

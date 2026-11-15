@@ -42,7 +42,7 @@ _REAL_CREATE_CLIENT = supabase.create_client
 supabase.create_client = _DummySupabaseClient
 
 # --- ONLY the app-specific import stays down here after environment setup ---
-from heavensdoor.app.routes import Apiagent
+from heavensdoor.app.routes import api_agent
 
 
 def _id_key(entry_id):
@@ -186,8 +186,8 @@ def celery_fake():
 def client(monkeypatch, redis_fake, celery_fake):
     from heavensdoor.app.main import app
 
-    monkeypatch.setattr(Apiagent, "client", redis_fake)
-    monkeypatch.setattr(Apiagent, "celery_app", celery_fake)
+    monkeypatch.setattr(api_agent, "client", redis_fake)
+    monkeypatch.setattr(api_agent, "celery_app", celery_fake)
 
     with TestClient(app) as test_client:
         yield test_client
@@ -196,7 +196,7 @@ def client(monkeypatch, redis_fake, celery_fake):
 @pytest.fixture
 def v2client(monkeypatch, redis_fake, celery_fake):
     from heavensdoor.app.main import app
-    from heavensdoor.app.routes import StreamingApi as v2
+    from heavensdoor.app.routes import streaming_api as v2
 
     monkeypatch.setattr(v2, "redis", redis_fake)
     monkeypatch.setattr(v2, "celery_app", celery_fake)
