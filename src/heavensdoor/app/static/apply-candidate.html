@@ -120,22 +120,25 @@
 </head>
 <body>
     <header class="topbar">
-        <a class="about-link" href="/about">About</a>
-        <a class="about-link" id="linkLogin" href="/auth/login">Login</a>
-        <a class="about-link" id="linkSignup" href="/auth/signup">Sign up</a>
-        <div id="auth-user" class="auth-user-container" style="display:none;">
-            <span id="user-email" class="user-email"></span>
-            <div class="user-dropdown">
-                <a href="/apply-candidate">Apply as Candidate</a>
-                <hr>
-                <button id="logoutBtn">Logout</button>
-            </div>
-        </div>
-        <div class="brand">
-            <img class="brand-logo" src="/static/icon.png" alt="Heaven's Door logo">
-            <h1>Heaven's Door</h1>
-        </div>
-    </header>
+		        <a class="about-link" href="/about">About</a>
+		        <a class="auth-user-container" style="margin-right: 6rem;" id="linkLogin" href="/auth/login">Login</a>
+		        <a class="auth-user-container" id="linkSignup" href="/auth/signup">Sign up</a>
+
+		        <div class="brand">
+										<a href="/" class="icon-link">
+			<img class="brand-logo" src="/static/icon.png"  alt="Heaven's Door logo">
+										</a>
+			<h1>Heaven's Door</h1>
+		</div>
+     <div id="auth-user" class="auth-user-container" style="display:none;">
+         <span id="user-email" class="user-email"></span>
+         <div class="user-dropdown">
+             <a href="/apply-candidate">Apply as Candidate</a>
+             <hr>
+             <button id="logoutBtn">Logout</button>
+         </div>
+     </div>
+	</header>
 
     <div class="apply-card">
         <h2>Apply as Candidate</h2>
