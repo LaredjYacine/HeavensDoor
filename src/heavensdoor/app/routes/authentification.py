@@ -12,7 +12,6 @@ from ..services.credentials import supabase_client
 from ..services.embedmodel import get_embedding_model
 
 auth = APIRouter(prefix="/auth")
-embedder = get_embedding_model()
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
@@ -62,6 +61,8 @@ currentUser = Annotated[User, Depends(get_current_user)]
 @auth.post("/apply_candidate")
 def apply_candidate(candidate_info: CandidateSchema, currentuser: currentUser):
     try:
+        embedder = get_embedding_model()
+
         id = currentuser.id
         data = (
             supabase_client.table("UsersCooldown")
