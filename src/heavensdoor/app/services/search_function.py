@@ -3,8 +3,6 @@ from typing import Any
 from .credentials import supabase_client
 from .embedmodel import get_embedding_model
 
-embedding_model = get_embedding_model()
-
 
 def rrf(lists, k=10):
     scores = {}
@@ -16,6 +14,8 @@ def rrf(lists, k=10):
 
 
 def rag_function(query_vector: str) -> list[Any]:
+    embedding_model = get_embedding_model()
+
     embedded_query = next(iter(embedding_model.embed([query_vector])))
 
     vector_threshold = 0.50
